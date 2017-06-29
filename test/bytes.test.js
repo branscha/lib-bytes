@@ -3,6 +3,8 @@ import {
     barr2rstr as barr2rstr,
     barr2warrL as barr2warrL,
     barr2warrB as barr2warrB,
+    warr2barrL as warr2barrL,
+    warr2barrB as warr2barrB
 } from 'bytes';
 
 test('rstr2barr', () => {
@@ -65,3 +67,24 @@ test('barr2warrB', () => {
     expect(() => barr2warrB([1, 2, 3])).toThrow(/Bytes\/050/);
 });
 
+test('warr2barrL', () => {
+    let warr = [0x0705, 0x0d0b, 0x0b0a];
+    let barr = warr2barrL(warr);
+
+    expect(barr.length).toBe(6);
+    expect(barr).toEqual([0x05, 0x07, 0x0b, 0x0d, 0x0a, 0x0b]);
+
+    expect(() => warr2barrL(null)).toThrow(/Bytes\/020/);
+    expect(() => warr2barrL({})).toThrow(/Bytes\/040/);
+});
+
+test('warr2barrB', () => {
+    let warr = [0x0507, 0x0b0d, 0x0a0b];
+    let barr = warr2barrB(warr);
+
+    expect(barr.length).toBe(6);
+    expect(barr).toEqual([0x05, 0x07, 0x0b, 0x0d, 0x0a, 0x0b]);
+
+    expect(() => warr2barrB(null)).toThrow(/Bytes\/020/);
+    expect(() => warr2barrB({})).toThrow(/Bytes\/040/);
+});

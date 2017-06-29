@@ -4,6 +4,8 @@ const ERR030 = "Bytes/030: Input error. Expected a String input.";
 const ERR040 = "Bytes/040: Input error. Expected an array input.";
 const ERR050 = "Bytes/050: Input error. Length of input array should be a multiple of 2.";
 const ERR060 = "Bytes/060: Input error. Length of input array should be a multiple of 4.";
+const ERR070 = (len) => `Bytes/070: Input error. Length of input array should be a multiple of ${len}.`;
+const ERR080 = "Bytes/080: Input error. The byte length of the composites should be a multiple of 4.";
 
 // Raw string.
 
@@ -72,11 +74,12 @@ function barr2warrB(barr) {
 function warr2barrL(warr) {
     if (!warr) throw new Error(ERR020);
     if (!Array.isArray(warr)) throw new Error(ERR040);
+    debugger;
     let barr = [];
     for(let i = 0; i < warr.length; i++) {
         let word = warr[i] & 0xffff;
-        loByte = word & 0b11111111;
-        hiByte = word >>> 8;
+        let loByte = word & 0xff;
+        let hiByte = (word >>> 8) & 0xff;
         barr.push(loByte, hiByte);
     }
     return barr;
@@ -88,8 +91,8 @@ function warr2barrB(warr) {
     let barr = [];
     for(let i = 0; i < warr.length; i++) {
         let word = warr[i] & 0xffff;
-        loByte = word & 0b11111111;
-        hiByte = word >>> 8;
+        let loByte = word & 0b11111111;
+        let hiByte = word >>> 8;
         barr.push(hiByte, loByte);
     }
     return barr;
@@ -133,10 +136,10 @@ function dwarr2barrL(dwarr) {
     let barr = [];
     for (let i = 0; i < dwarr.length; i++) {
         let dword = dwarr[i] & 0xffffffff;
-        lowestByte = dword & 0b11111111;
-        lowerByte = (dword >>> 8) & 0b11111111;
-        higherByte = (dword >>> 16) & 0b11111111;
-        highestByte = (dword >>> 24) & 0b11111111;
+        let lowestByte = dword & 0b11111111;
+        let lowerByte = (dword >>> 8) & 0b11111111;
+        let higherByte = (dword >>> 16) & 0b11111111;
+        let highestByte = (dword >>> 24) & 0b11111111;
         barr.push(lowestByte, lowerByte, higherByte, highestByte);
     }
     return barr;
@@ -148,10 +151,10 @@ function dwarr2barrB(dwarr) {
     let barr = [];
     for (let i = 0; i < dwarr.length; i++) {
         let dword = dwarr[i] & 0xffffffff;
-        lowestByte = dword & 0b11111111;
-        lowerByte = (dword >>> 8) & 0b11111111;
-        higherByte = (dword >>> 16) & 0b11111111;
-        highestByte = (dword >>> 24) & 0b11111111;
+        let lowestByte = dword & 0b11111111;
+        let lowerByte = (dword >>> 8) & 0b11111111;
+        let higherByte = (dword >>> 16) & 0b11111111;
+        let highestByte = (dword >>> 24) & 0b11111111;
         barr.push(highestByte, higherByte, lowerByte, lowestByte);
     }
     return barr;
@@ -161,15 +164,56 @@ function dwarr2barrB(dwarr) {
 // Unlimited byte precision above 32 bits JavaScript limit.
 
 function barr2carrL(barr, carrByteSize) {
+    if (!barr) throw new Error(ERR020);
+    if (!Array.isArray(barr)) throw new Error(ERR040);
+    if (carrByteSize % 4) throw new Error(ERR080);
+    if (barr.length % carrByteSize) throw new Error(ERR070(carrByteSize));
+    let carr = [];
+    for (let i = 0; i < barr.length; i += carrByteSize) {
+        let subarr = barr.slice(i, i + carrByteSize);
+        subarr = subarr.reverse();
+        let dwarr = barr2dwarrB(subarr);
+        carr.push(dwarr);
+    }
+    return carr;
 }
 
 function barr2carrB(barr, carrByteSize) {
+    if (!barr) throw new Error(ERR020);
+    if (!Array.isArray(barr)) throw new Error(ERR040);
+    if (carrByteSize % 4) throw new Error(ERR080);
+    if (barr.length % carrByteSize) throw new Error(ERR070(carrByteSize));
+    let carr = [];
+    for (let i = 0; i < barr.length; i += carrByteSize) {
+        let subarr = barr.slice(i, i + carrByteSize);
+        let dwarr = barr2dwarrB(subarr);
+        carr.push(dwarr);
+    }
+    return carr;
 }
 
 function carr2barrL(carr) {
+    if (!dwarr) throw new Error(ERR020);
+    if (!Array.isArray(dwarr)) throw new Error(ERR040);
+    let barr = [];
+    for(let i = 0; i < carr.length; i++) {
+        let dwarr = carr[i];
+        let subarr = dwarr2barrB(dwarr);
+        subarr = subarr.reverse();
+        barr.append(subarr);
+    }
+    return barr;
 }
 
 function carr2barrB(carr) {
+    if (!dwarr) throw new Error(ERR020);
+    if (!Array.isArray(dwarr)) throw new Error(ERR040);
+    let barr = [];
+    for(let i = 0; i < carr.length; i++) {
+        let subarr = dwarr2barrB(carr[i]);
+        barr.append(subarr);
+    }
+    return barr;
 }
 
 function isConsistentCarr(carr) {
@@ -198,15 +242,35 @@ function isCompatibleDwarrs(op1, op2) {
 }
 
 function dwarrAnd(op1, op2) {
+    let dwarr = [];
+    for (let i = 0; i < op1.length; i++) {
+        dwarr.push(op1[1] & op2[i]);
+    }
+    return dwarr;
 }
 
 function dwarrOr(op1, op2) {
+    let dwarr = [];
+    for (let i = 0; i < op1.length; i++) {
+        dwarr.push(op1[1] | op2[i]);
+    }
+    return dwarr;
 }
 
 function dwarrXor(op1, op2) {
+    let dwarr = [];
+    for (let i = 0; i < op1.length; i++) {
+        dwarr.push(op1[1] ^ op2[i]);
+    }
+    return dwarr;
 }
 
 function dwarrNot(op1) {
+    let dwarr = [];
+    for (let i = 0; i < op1.length; i++) {
+        dwarr.push(~op1);
+    }
+    return dwarr;
 }
 
 function dwarrLshift(op1) {
@@ -253,4 +317,6 @@ export {
     rstr2barr as rstr2barr,
     barr2warrL as barr2warrL,
     barr2warrB as barr2warrB,
+    warr2barrL as warr2barrL,
+    warr2barrB as warr2barrB,
 }
