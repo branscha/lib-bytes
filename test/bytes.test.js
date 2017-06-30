@@ -12,7 +12,8 @@ import {
     barr2carrL as barr2carrL,
     barr2carrB as barr2carrB,
     carr2barrL as carr2barrL,
-    carr2barrB as carr2barrB
+    carr2barrB as carr2barrB,
+    dwarrLshift as dwarrLshift,
 
 } from 'bytes';
 
@@ -192,4 +193,29 @@ test('carr2barrB', () => {
 
     expect(() => carr2barrB(null)).toThrow(/Bytes\/020/);
     expect(() => carr2barrB({})).toThrow(/Bytes\/040/);
+});
+
+test('dwarrLshift', () => {
+    // Simple case, stay in lowest byte.
+    let bytes = [0,0,0,0,0,0,0, 0xb00000001];
+    let dwarr = barr2dwarrB(bytes);
+    let sdwarr = dwarrLshift(dwarr, 3);
+    let bytes2 = dwarr2barrB(sdwarr);
+    expect(bytes2.length).toBe(8);
+    expect(bytes2).toEqual([0,0,0,0,0,0,0,0b00001000]);
+
+    // Shift over 2 bytes.
+    sdwarr = dwarrLshift(dwarr, (1*8)+3);
+    bytes2 = dwarr2barrB(sdwarr);
+    expect(bytes2.length).toBe(8);
+    expect(bytes2).toEqual([0,0,0,0,0,0,0b00001000,0]);
+
+    // Shift over 7 bytes.
+    sdwarr = dwarrLshift(dwarr, (7*8)+3);
+    bytes2 = dwarr2barrB(sdwarr);
+    expect(bytes2.length).toBe(8);
+    expect(bytes2).toEqual([0b00001000,0,0,0,0,0,0,0])
+
+
+
 });

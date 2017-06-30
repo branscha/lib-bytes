@@ -283,8 +283,8 @@ function dwarrLshift(op1, nr) {
         let carry = 0b0;
         for (let i = 0; i < op1.length; i++) {
             let dword = op1[op1.length - 1 - i];
-            let hibit = dword & 0x40000000;
-            dwarr.shift((dword << 1) | carry);
+            let hibit = (dword & 0x80000000)?1:0;
+            dwarr.unshift((dword << 1) | carry);
             carry = hibit;
         }
         return dwarr;
@@ -292,7 +292,7 @@ function dwarrLshift(op1, nr) {
     else {
         // Repeat single bit shifts.
         for (let i = 0; i < nr; i++) {
-            op1 = dwarr2barrB(op1, 1);
+            op1 = dwarrLshift(op1, 1);
         }
         return op1;
     }
@@ -371,5 +371,6 @@ export {
     barr2carrL as barr2carrL,
     barr2carrB as barr2carrB,
     carr2barrL as carr2barrL,
-    carr2barrB as carr2barrB
+    carr2barrB as carr2barrB,
+    dwarrLshift as dwarrLshift,
 }
