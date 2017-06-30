@@ -14,6 +14,8 @@ import {
     carr2barrL as carr2barrL,
     carr2barrB as carr2barrB,
     dwarrLshift as dwarrLshift,
+    dwarrRSshift as dwarrRSshift,
+    dwarrRZshift as dwarrRZshift,
 
 } from 'bytes';
 
@@ -215,7 +217,4 @@ test('dwarrLshift', () => {
     bytes2 = dwarr2barrB(sdwarr);
     expect(bytes2.length).toBe(8);
     expect(bytes2).toEqual([0b00001000,0,0,0,0,0,0,0])
-
-
-
 });

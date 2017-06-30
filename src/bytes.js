@@ -274,7 +274,7 @@ function dwarrNot(op1) {
 }
 
 function dwarrLshift(op1, nr) {
-    if(nr < 0) throw new Error (ERR090);
+    if (nr < 0) throw new Error(ERR090);
     if (nr === 0) return op1;
     else if (nr === 1) {
         // Start from the lowest valued byte and
@@ -283,7 +283,7 @@ function dwarrLshift(op1, nr) {
         let carry = 0b0;
         for (let i = 0; i < op1.length; i++) {
             let dword = op1[op1.length - 1 - i];
-            let hibit = (dword & 0x80000000)?1:0;
+            let hibit = (dword & 0x80000000) ? 1 : 0;
             dwarr.unshift((dword << 1) | carry);
             carry = hibit;
         }
@@ -299,32 +299,55 @@ function dwarrLshift(op1, nr) {
 }
 
 function dwarrRSshift(op1) {
-    // if(nr < 0) throw new Error (ERR090);
-    // if (nr === 0) return op1;
-    // else if (nr === 1) {
-    //     // Start from the highest valued byte and
-    //     // bring the sign bit for the next shift.
-    //     let dwarr = [];
-    //     let sign = op1[0] & 0x40000000;
-    //     let carry = 0b0;
-    //     for (let i = 0; i < op1.length; i++) {
-    //         let dword = op1[i];
-    //         let lobit = dword & 0b1;
-    //         dwarr.shift((dword >> 1) | sign);
-    //         sign = hibit;
-    //     }
-    //     return dwarr;
-    // }
-    // else {
-    //     // Repeat single bit shifts.
-    //     for (let i = 0; i < nr; i++) {
-    //         op1 = dwarr2barrB(op1, 1);
-    //     }
-    //     return op1;
-    // }
+    if (nr < 0) throw new Error(ERR090);
+    if (nr === 0) return op1;
+    else if (nr === 1) {
+        // Start from the highest valued byte and
+        // bring the carry bit of the previous shift.
+        let dwarr = [];
+        let carry = 0b0;
+        let sign = op1[0] & 0x80000000;
+        for (let i = 0; i < op1.length; i++) {
+            let dword = op1[i];
+            let lobit = (dword & 0b1) ? 0x80000000 : 0;
+            if (i === 0) dwarr.unshift((dword >> 1) | carry | sign);
+            else dwarr.unshift((dword >> 1) | carry);
+            carry = lobit;
+        }
+        return dwarr;
+    }
+    else {
+        // Repeat single bit shifts.
+        for (let i = 0; i < nr; i++) {
+            op1 = dwarrLshift(op1, 1);
+        }
+        return op1;
+    }
 }
 
 function dwarrRZshift(op1) {
+    if (nr < 0) throw new Error(ERR090);
+    if (nr === 0) return op1;
+    else if (nr === 1) {
+        // Start from the highest valued byte and
+        // bring the carry bit of the previous shift.
+        let dwarr = [];
+        let carry = 0b0;
+        for (let i = 0; i < op1.length; i++) {
+            let dword = op1[i];
+            let lobit = (dword & 0b1) ? 0x80000000 : 0;
+            dwarr.unshift((dword >> 1) | carry);
+            carry = lobit;
+        }
+        return dwarr;
+    }
+    else {
+        // Repeat single bit shifts.
+        for (let i = 0; i < nr; i++) {
+            op1 = dwarrLshift(op1, 1);
+        }
+        return op1;
+    }
 }
 
 // Padding
@@ -373,4 +396,6 @@ export {
     carr2barrL as carr2barrL,
     carr2barrB as carr2barrB,
     dwarrLshift as dwarrLshift,
+    dwarrRSshift as dwarrRSshift,
+    dwarrRZshift as dwarrRZshift,
 }
