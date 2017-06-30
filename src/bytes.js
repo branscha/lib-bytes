@@ -6,6 +6,7 @@ const ERR050 = "Bytes/050: Input error. Length of input array should be a multip
 const ERR060 = "Bytes/060: Input error. Length of input array should be a multiple of 4.";
 const ERR070 = (len) => `Bytes/070: Input error. Length of input array should be a multiple of ${len}.`;
 const ERR080 = "Bytes/080: Input error. The byte length of the composites should be a multiple of 4.";
+const ERR090 = "Bytes/090: Input error. Number of shifts should be >= 0.";
 
 // Raw string.
 
@@ -74,7 +75,6 @@ function barr2warrB(barr) {
 function warr2barrL(warr) {
     if (!warr) throw new Error(ERR020);
     if (!Array.isArray(warr)) throw new Error(ERR040);
-    debugger;
     let barr = [];
     for(let i = 0; i < warr.length; i++) {
         let word = warr[i] & 0xffff;
@@ -104,10 +104,10 @@ function barr2dwarrL(barr) {
     if (barr.length % 4) throw new Error(ERR060);
     let warr = [];
     for (let i = 0; i < barr.length; i += 4) {
-        let byte1 = barr[i + 0] & 0b11111111;
-        let byte2 = barr[i + 1] & 0b11111111;
-        let byte3 = barr[i + 3] & 0b11111111;
-        let byte4 = barr[i + 4] & 0b11111111;
+        let byte1 = barr[i + 0] & 0xff;
+        let byte2 = barr[i + 1] & 0xff;
+        let byte3 = barr[i + 2] & 0xff;
+        let byte4 = barr[i + 3] & 0xff;
         let dword = (byte4 << 24) | (byte3 << 16) | (byte2 << 8) | byte1;
         warr.push(dword);
     }
@@ -120,10 +120,10 @@ function barr2dwarrB(barr) {
     if (barr.length % 4) throw new Error(ERR060);
     let warr = [];
     for (let i = 0; i < barr.length; i += 4) {
-        let byte1 = barr[i + 0] & 0b11111111;
-        let byte2 = barr[i + 1] & 0b11111111;
-        let byte3 = barr[i + 3] & 0b11111111;
-        let byte4 = barr[i + 4] & 0b11111111;
+        let byte1 = barr[i + 0] & 0xff;
+        let byte2 = barr[i + 1] & 0xff;
+        let byte3 = barr[i + 2] & 0xff;
+        let byte4 = barr[i + 3] & 0xff;
         let dword = (byte1 << 24) | (byte2 << 16) | (byte3 << 8) | byte4;
         warr.push(dword);
     }
@@ -136,10 +136,10 @@ function dwarr2barrL(dwarr) {
     let barr = [];
     for (let i = 0; i < dwarr.length; i++) {
         let dword = dwarr[i] & 0xffffffff;
-        let lowestByte = dword & 0b11111111;
-        let lowerByte = (dword >>> 8) & 0b11111111;
-        let higherByte = (dword >>> 16) & 0b11111111;
-        let highestByte = (dword >>> 24) & 0b11111111;
+        let lowestByte = dword & 0xff;
+        let lowerByte = (dword >>> 8) & 0xff;
+        let higherByte = (dword >>> 16) & 0xff;
+        let highestByte = (dword >>> 24) & 0xff;
         barr.push(lowestByte, lowerByte, higherByte, highestByte);
     }
     return barr;
@@ -151,10 +151,10 @@ function dwarr2barrB(dwarr) {
     let barr = [];
     for (let i = 0; i < dwarr.length; i++) {
         let dword = dwarr[i] & 0xffffffff;
-        let lowestByte = dword & 0b11111111;
-        let lowerByte = (dword >>> 8) & 0b11111111;
-        let higherByte = (dword >>> 16) & 0b11111111;
-        let highestByte = (dword >>> 24) & 0b11111111;
+        let lowestByte = dword & 0xff;
+        let lowerByte = (dword >>> 8) & 0xff;
+        let higherByte = (dword >>> 16) & 0xff;
+        let highestByte = (dword >>> 24) & 0xff;
         barr.push(highestByte, higherByte, lowerByte, lowestByte);
     }
     return barr;
@@ -166,7 +166,7 @@ function dwarr2barrB(dwarr) {
 function barr2carrL(barr, carrByteSize) {
     if (!barr) throw new Error(ERR020);
     if (!Array.isArray(barr)) throw new Error(ERR040);
-    if (carrByteSize % 4) throw new Error(ERR080);
+    if (!carrByteSize || carrByteSize % 4) throw new Error(ERR080);
     if (barr.length % carrByteSize) throw new Error(ERR070(carrByteSize));
     let carr = [];
     for (let i = 0; i < barr.length; i += carrByteSize) {
@@ -181,7 +181,7 @@ function barr2carrL(barr, carrByteSize) {
 function barr2carrB(barr, carrByteSize) {
     if (!barr) throw new Error(ERR020);
     if (!Array.isArray(barr)) throw new Error(ERR040);
-    if (carrByteSize % 4) throw new Error(ERR080);
+    if (!carrByteSize || carrByteSize % 4) throw new Error(ERR080);
     if (barr.length % carrByteSize) throw new Error(ERR070(carrByteSize));
     let carr = [];
     for (let i = 0; i < barr.length; i += carrByteSize) {
@@ -193,25 +193,25 @@ function barr2carrB(barr, carrByteSize) {
 }
 
 function carr2barrL(carr) {
-    if (!dwarr) throw new Error(ERR020);
-    if (!Array.isArray(dwarr)) throw new Error(ERR040);
+    if (!carr) throw new Error(ERR020);
+    if (!Array.isArray(carr)) throw new Error(ERR040);
     let barr = [];
     for(let i = 0; i < carr.length; i++) {
         let dwarr = carr[i];
         let subarr = dwarr2barrB(dwarr);
         subarr = subarr.reverse();
-        barr.append(subarr);
+        barr = barr.concat(subarr);
     }
     return barr;
 }
 
 function carr2barrB(carr) {
-    if (!dwarr) throw new Error(ERR020);
-    if (!Array.isArray(dwarr)) throw new Error(ERR040);
+    if (!carr) throw new Error(ERR020);
+    if (!Array.isArray(carr)) throw new Error(ERR040);
     let barr = [];
     for(let i = 0; i < carr.length; i++) {
         let subarr = dwarr2barrB(carr[i]);
-        barr.append(subarr);
+        barr = barr.concat(subarr);
     }
     return barr;
 }
@@ -273,10 +273,55 @@ function dwarrNot(op1) {
     return dwarr;
 }
 
-function dwarrLshift(op1) {
+function dwarrLshift(op1, nr) {
+    if(nr < 0) throw new Error (ERR090);
+    if (nr === 0) return op1;
+    else if (nr === 1) {
+        // Start from the lowest valued byte and
+        // bring the carry bit of the previous shift.
+        let dwarr = [];
+        let carry = 0b0;
+        for (let i = 0; i < op1.length; i++) {
+            let dword = op1[op1.length - 1 - i];
+            let hibit = dword & 0x40000000;
+            dwarr.shift((dword << 1) | carry);
+            carry = hibit;
+        }
+        return dwarr;
+    }
+    else {
+        // Repeat single bit shifts.
+        for (let i = 0; i < nr; i++) {
+            op1 = dwarr2barrB(op1, 1);
+        }
+        return op1;
+    }
 }
 
 function dwarrRSshift(op1) {
+    // if(nr < 0) throw new Error (ERR090);
+    // if (nr === 0) return op1;
+    // else if (nr === 1) {
+    //     // Start from the highest valued byte and
+    //     // bring the sign bit for the next shift.
+    //     let dwarr = [];
+    //     let sign = op1[0] & 0x40000000;
+    //     let carry = 0b0;
+    //     for (let i = 0; i < op1.length; i++) {
+    //         let dword = op1[i];
+    //         let lobit = dword & 0b1;
+    //         dwarr.shift((dword >> 1) | sign);
+    //         sign = hibit;
+    //     }
+    //     return dwarr;
+    // }
+    // else {
+    //     // Repeat single bit shifts.
+    //     for (let i = 0; i < nr; i++) {
+    //         op1 = dwarr2barrB(op1, 1);
+    //     }
+    //     return op1;
+    // }
 }
 
 function dwarrRZshift(op1) {
@@ -319,4 +364,12 @@ export {
     barr2warrB as barr2warrB,
     warr2barrL as warr2barrL,
     warr2barrB as warr2barrB,
+    barr2dwarrL as barr2dwarrL,
+    barr2dwarrB as barr2dwarrB,
+    dwarr2barrL as dwarr2barrL,
+    dwarr2barrB as dwarr2barrB,
+    barr2carrL as barr2carrL,
+    barr2carrB as barr2carrB,
+    carr2barrL as carr2barrL,
+    carr2barrB as carr2barrB
 }
