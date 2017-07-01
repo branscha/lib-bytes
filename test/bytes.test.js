@@ -13,9 +13,10 @@ import {
     barr2carrB as barr2carrB,
     carr2barrL as carr2barrL,
     carr2barrB as carr2barrB,
-    dwarrLshift as dwarrLshift,
-    dwarrRSshift as dwarrRSshift,
-    dwarrRZshift as dwarrRZshift,
+    dwarrLShift as dwarrLShift,
+    dwarrRSShift as dwarrRSShift,
+    dwarrRZShift as dwarrRZShift,
+    isConsistentCarr as isConsistentCarr,
 
 } from 'bytes';
 
@@ -197,24 +198,87 @@ test('carr2barrB', () => {
     expect(() => carr2barrB({})).toThrow(/Bytes\/040/);
 });
 
-test('dwarrLshift', () => {
+test('dwarrLShift', () => {
     // Simple case, stay in lowest byte.
     let bytes = [0,0,0,0,0,0,0, 0xb00000001];
     let dwarr = barr2dwarrB(bytes);
-    let sdwarr = dwarrLshift(dwarr, 3);
+    let sdwarr = dwarrLShift(dwarr, 3);
     let bytes2 = dwarr2barrB(sdwarr);
     expect(bytes2.length).toBe(8);
     expect(bytes2).toEqual([0,0,0,0,0,0,0,0b00001000]);
 
     // Shift over 2 bytes.
-    sdwarr = dwarrLshift(dwarr, (1*8)+3);
+    sdwarr = dwarrLShift(dwarr, (1*8)+3);
     bytes2 = dwarr2barrB(sdwarr);
     expect(bytes2.length).toBe(8);
     expect(bytes2).toEqual([0,0,0,0,0,0,0b00001000,0]);
 
     // Shift over 7 bytes.
-    sdwarr = dwarrLshift(dwarr, (7*8)+3);
+    sdwarr = dwarrLShift(dwarr, (7*8)+3);
     bytes2 = dwarr2barrB(sdwarr);
     expect(bytes2.length).toBe(8);
     expect(bytes2).toEqual([0b00001000,0,0,0,0,0,0,0])
+});
+
+test('dwarrRZShift', () => {
+    // Simple case, stay in highest byte.
+    let bytes = [0b10000000, 0, 0, 0, 0, 0, 0, 0];
+    let dwarr = barr2dwarrB(bytes);
+    let sdwarr = dwarrRZShift(dwarr, 3);
+    let bytes2 = dwarr2barrB(sdwarr);
+    expect(bytes2.length).toBe(8);
+    expect(bytes2).toEqual([0b00010000,0,0,0,0,0,0,0]);
+
+    // Shift over 2 bytes, cross a single byte boundary.
+    sdwarr = dwarrRZShift(dwarr, (1*8)+3);
+    bytes2 = dwarr2barrB(sdwarr);
+    expect(bytes2.length).toBe(8);
+    expect(bytes2).toEqual([0, 0b00010000, 0, 0, 0, 0, 0, 0 ]);
+
+    // Shift over 7 bytes.
+    sdwarr = dwarrRZShift(dwarr, (7*8)+3);
+    bytes2 = dwarr2barrB(sdwarr);
+    expect(bytes2.length).toBe(8);
+    expect(bytes2).toEqual([0,0,0,0,0,0,0,0b00010000])
+});
+
+test('dwarrRSShift', () => {
+    // Simple case, stay in highest byte.
+    // The sign must be extended.
+    let bytes = [0b10000000, 0, 0, 0, 0, 0, 0, 0];
+    let dwarr = barr2dwarrB(bytes);
+    let sdwarr = dwarrRSShift(dwarr, 3);
+    let bytes2 = dwarr2barrB(sdwarr);
+    expect(bytes2.length).toBe(8);
+    expect(bytes2).toEqual([0b11110000,0,0,0,0,0,0,0]);
+
+    // Shift over 2 bytes, cross a single byte boundary.
+    sdwarr = dwarrRSShift(dwarr, (1*8)+3);
+    bytes2 = dwarr2barrB(sdwarr);
+    expect(bytes2.length).toBe(8);
+    expect(bytes2).toEqual([0xff, 0b11110000, 0, 0, 0, 0, 0, 0 ]);
+
+    // Shift over 7 bytes.
+    sdwarr = dwarrRSShift(dwarr, (7*8)+3);
+    bytes2 = dwarr2barrB(sdwarr);
+    expect(bytes2.length).toBe(8);
+    expect(bytes2).toEqual([0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,0b11110000])
+
+    // Simple case, stay in highest byte.
+    // The sign must NOT be extended.
+    let bytes3 = [0b01000000, 0, 0, 0, 0, 0, 0, 0];
+    let dwarr2 = barr2dwarrB(bytes3);
+    let sdwarr2 = dwarrRSShift(dwarr2, 3);
+    let bytes4 = dwarr2barrB(sdwarr2);
+    expect(bytes4.length).toBe(8);
+    expect(bytes4).toEqual([0b00001000,0,0,0,0,0,0,0]);
+});
+
+test('isConsistentCarr', () => {
+    expect(isConsistentCarr(null)).toBeFalsy();
+    expect(isConsistentCarr([])).toBeTruthy();
+    expect(isConsistentCarr([0, 0])).toBeFalsy();
+    expect(isConsistentCarr([[0], [0]])).toBeTruthy();
+    expect(isConsistentCarr([[0, 0, 0, 0, 0], [0]])).toBeFalsy();
+    expect(isConsistentCarr([[0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]])).toBeTruthy();
 });

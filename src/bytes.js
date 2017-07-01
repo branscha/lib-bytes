@@ -216,6 +216,13 @@ function carr2barrB(carr) {
     return barr;
 }
 
+/**
+ * A carr (composites array) represents an array of super-words of the same size.
+ * A super-word is represented by a big endian dwarr (a dword array, most significant dword first).
+ * This function test if a data structure can pass as a valid carr.
+ * @param carr
+ * @returns {boolean}
+ */
 function isConsistentCarr(carr) {
     if (carr === null) return false;
     if (!Array.isArray(carr)) return false;
@@ -237,6 +244,12 @@ function isConsistentCarr(carr) {
 // Notes:
 // * dwarr is is considered to be big endian here.
 
+/**
+ * Both operands must be arrays of the same length.
+ * @param op1
+ * @param op2
+ * @returns {boolean}
+ */
 function isCompatibleDwarrs(op1, op2) {
     return op1 !== null && op2 !== null && Array.isArray(op1) && Array.isArray(op2) && op1.length === op2.length;
 }
@@ -273,7 +286,13 @@ function dwarrNot(op1) {
     return dwarr;
 }
 
-function dwarrLshift(op1, nr) {
+/**
+ * Left shift of big endian dword arrays (it could be the contents of a carr).
+ * @param op1
+ * @param nr
+ * @returns {*}
+ */
+function dwarrLShift(op1, nr) {
     if (nr < 0) throw new Error(ERR090);
     if (nr === 0) return op1;
     else if (nr === 1) {
@@ -292,13 +311,19 @@ function dwarrLshift(op1, nr) {
     else {
         // Repeat single bit shifts.
         for (let i = 0; i < nr; i++) {
-            op1 = dwarrLshift(op1, 1);
+            op1 = dwarrLShift(op1, 1);
         }
         return op1;
     }
 }
 
-function dwarrRSshift(op1) {
+/**
+ * Right shift with sign extension of a big endian dword array (it could be the contents of a carr).
+ * @param op1
+ * @param nr
+ * @returns {*}
+ */
+function dwarrRSShift(op1, nr) {
     if (nr < 0) throw new Error(ERR090);
     if (nr === 0) return op1;
     else if (nr === 1) {
@@ -310,8 +335,8 @@ function dwarrRSshift(op1) {
         for (let i = 0; i < op1.length; i++) {
             let dword = op1[i];
             let lobit = (dword & 0b1) ? 0x80000000 : 0;
-            if (i === 0) dwarr.unshift((dword >> 1) | carry | sign);
-            else dwarr.unshift((dword >> 1) | carry);
+            if (i === 0) dwarr.unshift((dword >>> 1) | carry | sign);
+            else dwarr.push((dword >> 1) | carry);
             carry = lobit;
         }
         return dwarr;
@@ -319,13 +344,19 @@ function dwarrRSshift(op1) {
     else {
         // Repeat single bit shifts.
         for (let i = 0; i < nr; i++) {
-            op1 = dwarrLshift(op1, 1);
+            op1 = dwarrRSShift(op1, 1);
         }
         return op1;
     }
 }
 
-function dwarrRZshift(op1) {
+/**
+ * Right shift with zero extension of a big endian dword array (it could be the contents of a carr).
+ * @param op1
+ * @param nr
+ * @returns {*}
+ */
+function dwarrRZShift(op1, nr) {
     if (nr < 0) throw new Error(ERR090);
     if (nr === 0) return op1;
     else if (nr === 1) {
@@ -336,7 +367,7 @@ function dwarrRZshift(op1) {
         for (let i = 0; i < op1.length; i++) {
             let dword = op1[i];
             let lobit = (dword & 0b1) ? 0x80000000 : 0;
-            dwarr.unshift((dword >> 1) | carry);
+            dwarr.push((dword >>> 1) | carry);
             carry = lobit;
         }
         return dwarr;
@@ -344,7 +375,7 @@ function dwarrRZshift(op1) {
     else {
         // Repeat single bit shifts.
         for (let i = 0; i < nr; i++) {
-            op1 = dwarrLshift(op1, 1);
+            op1 = dwarrRZShift(op1, 1);
         }
         return op1;
     }
@@ -395,7 +426,8 @@ export {
     barr2carrB as barr2carrB,
     carr2barrL as carr2barrL,
     carr2barrB as carr2barrB,
-    dwarrLshift as dwarrLshift,
-    dwarrRSshift as dwarrRSshift,
-    dwarrRZshift as dwarrRZshift,
+    dwarrLShift as dwarrLShift,
+    dwarrRSShift as dwarrRSShift,
+    dwarrRZShift as dwarrRZShift,
+    isConsistentCarr as isConsistentCarr,
 }
