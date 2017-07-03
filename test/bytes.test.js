@@ -17,6 +17,10 @@ import {
     dwarrRSShift as dwarrRSShift,
     dwarrRZShift as dwarrRZShift,
     isConsistentCarr as isConsistentCarr,
+    dwarrAnd as dwarrAnd,
+    dwarrOr as dwarrOr,
+    dwarrXor as dwarrXor,
+    dwarrNot as dwarrNot,
 
 } from 'bytes';
 
@@ -281,4 +285,43 @@ test('isConsistentCarr', () => {
     expect(isConsistentCarr([[0], [0]])).toBeTruthy();
     expect(isConsistentCarr([[0, 0, 0, 0, 0], [0]])).toBeFalsy();
     expect(isConsistentCarr([[0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0], [0, 0, 0, 0, 0]])).toBeTruthy();
+});
+
+test('dwarrAnd', () => {
+    let op1 = barr2dwarrB([0b10101010, 0b11110000, 0b00001111, 0b10101010]);
+    let op2 = barr2dwarrB([0b01010101, 0b10101010, 0b01010101, 0b10101010]);
+    let and_result = dwarrAnd(op1, op2);
+    let result = dwarr2barrB(and_result);
+
+    expect(result.length).toBe(4);
+    expect(result).toEqual([0b00000000, 0b10100000, 0b00000101, 0b10101010]);
+});
+
+test('dwarrOr', () => {
+    let op1 = barr2dwarrB([0b10101010, 0b11110000, 0b00001111, 0b10101010]);
+    let op2 = barr2dwarrB([0b01010101, 0b10101010, 0b01010101, 0b10101010]);
+    let dwarrResult = dwarrOr(op1, op2);
+    let result = dwarr2barrB(dwarrResult);
+
+    expect(result.length).toBe(4);
+    expect(result).toEqual([0b11111111, 0b11111010, 0b01011111, 0b10101010]);
+});
+
+test('dwarrXor', () => {
+    let op1 = barr2dwarrB([0b10101010, 0b11110000, 0b00001111, 0b10101010]);
+    let op2 = barr2dwarrB([0b01010101, 0b10101010, 0b01010101, 0b10101010]);
+    let dwarrResult = dwarrXor(op1, op2);
+    let result = dwarr2barrB(dwarrResult);
+
+    expect(result.length).toBe(4);
+    expect(result).toEqual([0b11111111, 0b01011010, 0b01011010, 0b00000000]);
+});
+
+test('dwarrNot', () => {
+    let op1 = barr2dwarrB([0b10101010, 0b11110000, 0b00001111, 0b10101010]);
+    let dwarrResult = dwarrNot(op1);
+    let result = dwarr2barrB(dwarrResult);
+
+    expect(result.length).toBe(4);
+    expect(result).toEqual([0b01010101, 0b00001111, 0b11110000, 0b01010101]);
 });

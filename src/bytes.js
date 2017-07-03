@@ -257,7 +257,7 @@ function isCompatibleDwarrs(op1, op2) {
 function dwarrAnd(op1, op2) {
     let dwarr = [];
     for (let i = 0; i < op1.length; i++) {
-        dwarr.push(op1[1] & op2[i]);
+        dwarr.push(op1[i] & op2[i]);
     }
     return dwarr;
 }
@@ -265,7 +265,7 @@ function dwarrAnd(op1, op2) {
 function dwarrOr(op1, op2) {
     let dwarr = [];
     for (let i = 0; i < op1.length; i++) {
-        dwarr.push(op1[1] | op2[i]);
+        dwarr.push(op1[i] | op2[i]);
     }
     return dwarr;
 }
@@ -273,7 +273,7 @@ function dwarrOr(op1, op2) {
 function dwarrXor(op1, op2) {
     let dwarr = [];
     for (let i = 0; i < op1.length; i++) {
-        dwarr.push(op1[1] ^ op2[i]);
+        dwarr.push(op1[i] ^ op2[i]);
     }
     return dwarr;
 }
@@ -430,4 +430,8 @@ export {
     dwarrRSShift as dwarrRSShift,
     dwarrRZShift as dwarrRZShift,
     isConsistentCarr as isConsistentCarr,
+    dwarrAnd as dwarrAnd,
+    dwarrOr as dwarrOr,
+    dwarrXor as dwarrXor,
+    dwarrNot as dwarrNot,
 }
