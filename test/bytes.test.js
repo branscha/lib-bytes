@@ -21,6 +21,10 @@ import {
     dwarrOr as dwarrOr,
     dwarrXor as dwarrXor,
     dwarrNot as dwarrNot,
+    byte2bitarrB as byte2bitarrB,
+    byte2bitarrL as byte2bitarrL,
+    bitarr2byteL as bitarr2byteL,
+    bitarr2byteB as bitarr2byteB,
 
 } from 'bytes';
 
@@ -324,4 +328,30 @@ test('dwarrNot', () => {
 
     expect(result.length).toBe(4);
     expect(result).toEqual([0b01010101, 0b00001111, 0b11110000, 0b01010101]);
+});
+
+test('byte2bitarrB', () => {
+    let byte = 0b11000001;
+    let bitarr = byte2bitarrB(byte);
+    expect(bitarr.length).toBe(8);
+    expect(bitarr).toEqual([1, 1, 0, 0, 0, 0, 0, 1]);
+});
+
+test('byte2bitarrL', () => {
+    let byte = 0b11000001;
+    let bitarr = byte2bitarrL(byte);
+    expect(bitarr.length).toBe(8);
+    expect(bitarr).toEqual([1, 0, 0, 0, 0, 0, 1, 1]);
+});
+
+test('bitarr2byteB', () => {
+    let bitarr = [1, 1, 0, 0, 0, 0, 0, 1];
+    let byte = bitarr2byteB(bitarr);
+    expect(byte).toBe(0b11000001);
+});
+
+test('bitarr2byteL', () => {
+    let bitarr = [1, 1, 0, 0, 0, 0, 0, 1];
+    let byte = bitarr2byteL(bitarr);
+    expect(byte).toBe(0b10000011);
 });

@@ -7,6 +7,11 @@ const ERR060 = "Bytes/060: Input error. Length of input array should be a multip
 const ERR070 = (len) => `Bytes/070: Input error. Length of input array should be a multiple of ${len}.`;
 const ERR080 = "Bytes/080: Input error. The byte length of the composites should be a multiple of 4.";
 const ERR090 = "Bytes/090: Input error. Number of shifts should be >= 0.";
+const ERR100 = "Bytes/100: Input error. Cannot convert a null to a bit array.";
+const ERR110 = "Bytes/110: Input error. Expected a number input.";
+const ERR120 = "Bytes/120: Input error. Expected an array input, cannot convert a null to a byte.";
+const ERR130 = "Bytes/130: Input error. Expected an array of bits as input.";
+const ERR140 = "Bytes/140: Input error. The bit array should exactly be 8 bits long.";
 
 // Raw string.
 
@@ -381,9 +386,81 @@ function dwarrRZShift(op1, nr) {
     }
 }
 
+// Bit conversions
+// Only on individual bytes.
+
+function byte2bitarrB(byte) {
+    if(byte === null) throw new Error(ERR100);
+    if(typeof(byte) !== 'number') throw new Error(ERR110);
+    let bitarr = [];
+    let mask = 0b1;
+    for(let i = 0; i < 8; i++) {
+        bitarr.unshift(byte & mask);
+        byte = byte >>> 1;
+    }
+    return bitarr;
+}
+
+function byte2bitarrL(byte) {
+    if(byte === null) throw new Error(ERR100);
+    if(typeof(byte) !== 'number') throw new Error(ERR110);
+    let bitarr = [];
+    let mask = 0b1;
+    for(let i = 0; i < 8; i++) {
+        bitarr.push(byte & mask);
+        byte = byte >>> 1;
+    }
+    return bitarr;
+}
+
+function bitarr2byteB(bitarr){
+    if(bitarr === null) throw new Error(ERR120);
+    if(!Array.isArray(bitarr)) throw new Error(ERR130);
+    if(bitarr.length !== 8) throw new Error(ERR140);
+    let byte = 0;
+    for(let i = 0; i < 8; i++) {
+        byte = byte << 1;
+        byte = byte | (bitarr[i] & 0b1);
+    }
+    return byte;
+}
+
+function bitarr2byteL(bitarr){
+    if(bitarr === null) throw new Error(ERR120);
+    if(!Array.isArray(bitarr)) throw new Error(ERR130);
+    if(bitarr.length !== 8) throw new Error(ERR140);
+    let byte = 0;
+    for(let i = 0; i < 8; i++) {
+        byte = byte << 1;
+        byte = byte | (bitarr[8 - 1 -i] & 0b1);
+    }
+    return byte;
+}
+
 // Padding
 
-function paddPkcs7(barr, blockLen) {
+
+// Array itself is modified. Copy the array yourself if you do not want
+// this behavior.
+//
+// RFC1321 step 3.1
+// ISO/IEC 797-1 Padding Method 2
+function paddBits(bitarr, bitBlockLen){
+    if(bitarr === null) throw Error();
+    if(!Array.isArray(bitarr)) throw Error();
+    let padLen = (bitarr.length % bitBlockLen);
+    if(padLen) {
+        bitarr.push(1);
+        padLen--;
+        while(padLen > 0) {
+            bitarr.push(0);
+            padLen--;
+        }
+    }
+    return bitarr;
+}
+
+function paddPkcs7(barr, blockByteLen) {
 }
 
 function unpaddPkcs7(barr) {
@@ -434,4 +511,8 @@ export {
     dwarrOr as dwarrOr,
     dwarrXor as dwarrXor,
     dwarrNot as dwarrNot,
+    byte2bitarrB as byte2bitarrB,
+    byte2bitarrL as byte2bitarrL,
+    bitarr2byteL as bitarr2byteL,
+    bitarr2byteB as bitarr2byteB,
 }
