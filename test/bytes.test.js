@@ -52,7 +52,7 @@ test('rstr2barr', () => {
     expect(barr).toEqual([0, 1, 2, 255, 0, 0]);
 
     expect(() => rstr2barr(null)).toThrow(/Bytes\/010/);
-    expect(() => rstr2barr({})).toThrow(/Bytes\/030/);
+    expect(() => rstr2barr({})).toThrow(/Bytes\/010/);
 
     let rstr2 = "";
     for(let i = 0; i < 256; i++) rstr2 += (i %10);
@@ -68,7 +68,7 @@ test('barr2rstr', () => {
     expect(rstr).toBe("\u0000\u0001\u0002\u0003\u000d\u0000");
 
     expect(() => barr2rstr(null)).toThrow(/Bytes\/020/);
-    expect(() => barr2rstr({})).toThrow(/Bytes\/040/);
+    expect(() => barr2rstr({})).toThrow(/Bytes\/020/);
 
     let barr2 = [];
     for(let i = 0; i < 256; i++) barr2.push(i);
@@ -468,6 +468,24 @@ test('wordRRotate', () => {
     for (let i = 1; i < 16; i++) {
         let rotated = wordRRotate(word, i);
         let std = constructSparseWord(i);
+        expect(rotated).toBe(std);
+    }
+});
+
+test('dwordLRotate', () => {
+    let word = 0b10000000000000000000000000000000;
+    for (let i = 1; i < 32; i++) {
+        let rotated = dwordLRotate(word, i);
+        let std = constructSparseDword(31 + 1 - i);
+        expect(rotated).toBe(std);
+    }
+});
+
+test('dwordRRotate', () => {
+    let word = 0b10000000000000000000000000000000;
+    for (let i = 1; i < 32; i++) {
+        let rotated = dwordRRotate(word, i);
+        let std = constructSparseDword(i);
         expect(rotated).toBe(std);
     }
 });
