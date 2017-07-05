@@ -7,60 +7,78 @@ const ERR060 = (len) => `Bytes/060: Array length should be exactly ${len}.`;
 const ERR070 = "Bytes/070: The block length should be > 0.";
 const ERR080 = "Bytes/080: No bit padding found.";
 
-// Raw string.
+// RAW STRING
+/////////////
 
 /**
- * Raw string to byte array.
+ * Raw string (each character represents a singel byte)  to byte array with values 0-255.
+ * The high order byte of the character (which is 16 bits) is ignored.
+ * @param {String} rstr - A raw string.
+ * @returns {Array.<number>} - A byte array.
  */
 function rstr2barr(rstr) {
     if (!(typeof(rstr) === 'string')) throw new Error(ERR010);
     let barr = [];
     for (let i = 0; i < rstr.length; i++) {
         // Only keep the lower byte ignore higher byte.
-        let byte = rstr.charCodeAt(i) & 0b11111111;
+        let byte = rstr.charCodeAt(i) & 0xff;
         barr.push(byte);
     }
     return barr;
 }
 
 /**
- * Byte array to raw string.
+ * Byte array to raw string (each character represents a single byte).
+ * Only the low order byte of the character is taken into account the higher order bytes are ignored.
+ * @param {Array.<Number>} barr - A byte array.
+ * @returns {String} - A raw string.
  */
 function barr2rstr(barr) {
     if (!Array.isArray(barr)) throw new Error(ERR020);
     let rstr = "";
     for (let i = 0; i < barr.length; i++) {
         // Only keep the lower byte ignore higher byte.
-        let byte = barr[i] & 0b11111111;
+        let byte = barr[i] & 0xff;
         rstr = rstr + String.fromCharCode(byte);
     }
     return rstr;
 }
 
-// Word, double word.
-// Note:
-// * Everything larger than double word is a carr, it cannot be represented directly in JavaScript and we have to create our own data structure for it.
+// WORD ARRAY
+//////////////
 
+/**
+ * Convert a byte array into a 16-bit word array. The bytes are organized in little endian order.
+ * Each pair of bytes is converted into a 16-bit word, the first byte is the low order byte, the second byte is the high order byte.
+ * @param {Array.<Number>} barr - Byte array
+ * @returns {Array.<Number>} - Word array.
+ */
 function barr2warrL(barr) {
     if (!Array.isArray(barr)) throw new Error(ERR020);
     if (barr.length % 2) throw new Error(ERR040(2));
     let warr = [];
     for (let i = 0; i < barr.length; i += 2) {
-        let byte1 = barr[i] & 0b11111111;
-        let byte2 = barr[i + 1] & 0b11111111;
+        let byte1 = barr[i] & 0xff;
+        let byte2 = barr[i + 1] & 0xff;
         let word = (byte2 << 8) | byte1;
         warr.push(word);
     }
     return warr;
 }
 
+/**
+ * Convert a byte array into a 16-bit word array. The bytes are organized in big endian order.
+ * Each pair of bytes is converted into a 16-bit word, the first byte is the high order byte, the second byte is the low order byte.
+ * @param {Array.<Number>} barr - Byte array
+ * @returns {Array.<Number>} - Word array.
+ */
 function barr2warrB(barr) {
     if (!Array.isArray(barr)) throw new Error(ERR020);
     if (barr.length % 2) throw new Error(ERR040(2));
     let warr = [];
     for (let i = 0; i < barr.length; i += 2) {
-        let byte1 = barr[i] & 0b11111111;
-        let byte2 = barr[i + 1] & 0b11111111;
+        let byte1 = barr[i] & 0xff;
+        let byte2 = barr[i + 1] & 0xff;
         let word = (byte1 << 8) | byte2;
         warr.push(word);
     }
@@ -84,12 +102,15 @@ function warr2barrB(warr) {
     let barr = [];
     for(let i = 0; i < warr.length; i++) {
         let word = warr[i] & 0xffff;
-        let loByte = word & 0b11111111;
+        let loByte = word & 0xff;
         let hiByte = word >>> 8;
         barr.push(hiByte, loByte);
     }
     return barr;
 }
+
+// DWORD ARRAY
+//////////////
 
 function barr2dwarrL(barr) {
     if (!Array.isArray(barr)) throw new Error(ERR020);
@@ -149,8 +170,8 @@ function dwarr2barrB(dwarr) {
     return barr;
 }
 
-// Carr construction.
-// Unlimited byte precision above 32 bits JavaScript limit.
+// CARR ARRAY
+/////////////
 
 function barr2carrL(barr, carrByteSize) {
     if (!Array.isArray(barr)) throw new Error(ERR020);
@@ -223,6 +244,10 @@ function isConsistentCarr(carr) {
     }
     return true;
 }
+
+
+// DWORD ARRAY FUNCtIONS
+/////////////////////////
 
 // Bit operations on dwarrs.
 // Notes:
@@ -366,11 +391,49 @@ function dwarrRZShift(op1, nr = 1) {
 }
 
 function dwarrRRotate(dwarr, nr = 1) {
-
+    if(nr < 0) {
+        return dwarrRRotate(dwarr, -1 * nr);
+    }
+    else if(nr === 0) {
+        return dwarr;
+    }
+    else if(nr === 1) {
+        let loByteIndex = dwarr.length -1;
+        let lobit = (dwarr[loByteIndex] & 0b1)?0x80000000:0;
+        dwarr = dwarrRZShift(dwarr, 1);
+        // Integrate the lobit value into the hibit.
+        dwarr[0] = dwarr[0] | lobit;
+        return dwarr;
+    }
+    else {
+        for(let i = 0; i < nr; i++){
+            dwarr = dwarrRRotate(dwarr, 1);
+        }
+        return dwarr;
+    }
 }
 
-function dwarrRRotate(dwarr, nr = 1){
-
+function dwarrLRotate(dwarr, nr = 1){
+    if(nr < 0) {
+        return dwarrRRotate(dwarr, -1 * nr);
+    }
+    else if(nr === 0) {
+        return dwarr;
+    }
+    else if(nr === 1) {
+        let hibit = (dwarr[0] & 0x80000000)?1:0;
+        dwarr = dwarrLShift(dwarr, 1);
+        // Integrate the hibit value into the lobit.
+        let loByteIndex = dwarr.length - 1;
+        dwarr[loByteIndex] = dwarr[loByteIndex] | hibit;
+        return dwarr;
+    }
+    else {
+        for(let i = 0; i < nr; i++){
+            dwarr = dwarrLRotate(dwarr, 1);
+        }
+        return dwarr;
+    }
 }
 
 // Bit conversions
@@ -605,7 +668,6 @@ function dwordRRotate(dword, nr = 1) {
     }
 }
 
-//////////
 // PADDING
 //////////
 
@@ -736,5 +798,7 @@ export {
     barr2bitarrB as barr2bitarrB,
     barr2bitarrL as barr2bitarrL,
     bitarr2barrB as bitarr2barrB,
-    bitarr2barrL as bitarr2barrL
+    bitarr2barrL as bitarr2barrL,
+    dwarrRRotate as dwarrRRotate,
+    dwarrLRotate as dwarrLRotate
 }

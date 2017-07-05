@@ -36,7 +36,9 @@ import {
     barr2bitarrB as barr2bitarrB,
     barr2bitarrL as barr2bitarrL,
     bitarr2barrB as bitarr2barrB,
-    bitarr2barrL as bitarr2barrL
+    bitarr2barrL as bitarr2barrL,
+    dwarrRRotate as dwarrRRotate,
+    dwarrLRotate as dwarrLRotate
 
 } from 'bytes';
 
@@ -497,4 +499,48 @@ test('dwordRRotate', () => {
         let std = constructSparseDword(i);
         expect(rotated).toBe(std);
     }
+});
+
+test('dwarrRRotate', () => {
+    // Simple case, stay in lowest byte.
+    let bytes = [0,0,0,0,0,0,0, 0b00000001];
+    let dwarr = barr2dwarrB(bytes);
+    let sdwarr = dwarrRRotate(dwarr, 3);
+    let bytes2 = dwarr2barrB(sdwarr);
+    expect(bytes2.length).toBe(8);
+    expect(bytes2).toEqual([0b00100000,0,0,0,0,0,0,0]);
+
+    // Rotate over 2 bytes.
+    sdwarr = dwarrRRotate(dwarr, (1*8)+3);
+    bytes2 = dwarr2barrB(sdwarr);
+    expect(bytes2.length).toBe(8);
+    expect(bytes2).toEqual([0,0b00100000,0,0,0,0,0,0]);
+
+    // Rotate over 7 bytes.
+    sdwarr = dwarrRRotate(dwarr, (7*8)+3);
+    bytes2 = dwarr2barrB(sdwarr);
+    expect(bytes2.length).toBe(8);
+    expect(bytes2).toEqual([0,0,0,0,0,0,0,0b00100000])
+});
+
+test('dwarrLRotate', () => {
+    // Simple case, stay in lowest byte.
+    let bytes = [0,0,0,0,0,0,0, 0b00000001];
+    let dwarr = barr2dwarrB(bytes);
+    let sdwarr = dwarrLRotate(dwarr, 3);
+    let bytes2 = dwarr2barrB(sdwarr);
+    expect(bytes2.length).toBe(8);
+    expect(bytes2).toEqual([0,0,0,0,0,0,0,0b00001000]);
+
+    // Rotate over 2 bytes.
+    sdwarr = dwarrLRotate(dwarr, (1*8)+3);
+    bytes2 = dwarr2barrB(sdwarr);
+    expect(bytes2.length).toBe(8);
+    expect(bytes2).toEqual([0,0,0,0,0,0,0b00001000,0]);
+
+    // Rotate over 7 bytes.
+    sdwarr = dwarrLRotate(dwarr, (7*8)+3);
+    bytes2 = dwarr2barrB(sdwarr);
+    expect(bytes2.length).toBe(8);
+    expect(bytes2).toEqual([0b00001000,0,0,0,0,0,0,0])
 });

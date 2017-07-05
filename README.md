@@ -12,3 +12,8 @@ It concerns these concepts:
 
 
 
+
+* Everything larger than double word is a carr, it cannot be represented directly in JavaScript and we have to create our own data structure for it.
+
+// Carr construction.
+// Unlimited byte precision above 32 bits JavaScript limit.
