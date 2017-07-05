@@ -414,6 +414,35 @@ test('byteRRotate', () => {
     expect(byteRRotate(0b10000000, 8)).toBe(0b10000000);
 });
 
+test('bitarr2barrB', () => {
+    let bitarr = [1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0];
+    let barr = bitarr2barrB(bitarr);
+    expect(barr).toEqual([0b10000011, 0b11110000]);
+    expect(() => bitarr2barrB(null)).toThrow(/Bytes\/020/);
+});
+
+test('bitarr2barrL', () => {
+    let bitarr = [1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0];
+    let barr = bitarr2barrL(bitarr);
+    expect(barr).toEqual([0b11000001, 0b00001111]);
+    expect(() => bitarr2barrL(null)).toThrow(/Bytes\/020/);
+
+});
+
+test('barr2bitarrB', ()=>{
+    let barr = [0b10000011, 0b11110000];
+    let bitarr = barr2bitarrB(barr);
+    expect(bitarr).toEqual([1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0]);
+    expect(() => barr2bitarrB(null)).toThrow(/Bytes\/020/);
+});
+
+test('barr2bitarrL', ()=>{
+    let barr = [0b11000001, 0b00001111];
+    let bitarr = barr2bitarrL(barr);
+    expect(bitarr).toEqual([1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0]);
+    expect(() => barr2bitarrL(null)).toThrow(/Bytes\/020/);
+});
+
 function constructSparseWord(bitPos) {
     let arr = [];
     bitPos = bitPos % 16;

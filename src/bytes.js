@@ -421,7 +421,7 @@ function bitarr2byteL(bitarr){
 }
 
 function barr2bitarrB(barr) {
-    // TODO TESTS
+    if(!Array.isArray(barr)) throw new Error(ERR020);
     let bitarr = [];
     for(let i = 0; i < barr.length; i++) {
         bitarr = bitarr.concat(byte2bitarrB(barr[i]));
@@ -430,7 +430,7 @@ function barr2bitarrB(barr) {
 }
 
 function barr2bitarrL(barr) {
-    // TODO TESTS
+    if(!Array.isArray(barr)) throw new Error(ERR020);
     let bitarr = [];
     for(let i = 0; i < barr.length; i++) {
         bitarr = bitarr.concat(byte2bitarrL(barr[i]));
@@ -439,7 +439,7 @@ function barr2bitarrL(barr) {
 }
 
 function bitarr2barrB(bitarr) {
-    // TODO TESTS
+    if(!Array.isArray(bitarr)) throw new Error(ERR020);
     let barr = [];
     let byteLen = bitarr.length / 8;
     for(let i = 0; i < byteLen; i++) {
@@ -449,7 +449,7 @@ function bitarr2barrB(bitarr) {
 }
 
 function bitarr2barrL(bitarr) {
-    // TODO TESTS
+    if(!Array.isArray(bitarr)) throw new Error(ERR020);
     let barr = [];
     let byteLen = bitarr.length / 8;
     for(let i = 0; i < byteLen; i++) {
@@ -462,6 +462,7 @@ function bitarr2barrL(bitarr) {
 // ROTATE OPERATORS
 
 function byteLRotate(byte, nr = 1) {
+    if(typeof(byte) !== 'number') throw new Error(ERR030);
     if(nr < 0 ){
         return byteRRotate(byte, -1 * nr);
     }
@@ -485,6 +486,7 @@ function byteLRotate(byte, nr = 1) {
 }
 
 function byteRRotate(byte, nr = 1) {
+    if(typeof(byte) !== 'number') throw new Error(ERR030);
     if(nr < 0 ){
         return byteLRotate(byte, -1 * nr);
     }
@@ -508,6 +510,7 @@ function byteRRotate(byte, nr = 1) {
 }
 
 function wordLRotate(word, nr = 1) {
+    if(typeof(word) !== 'number') throw new Error(ERR030);
     if(nr < 0 ){
         return wordRRotate(word, -1 * nr);
     }
@@ -531,6 +534,7 @@ function wordLRotate(word, nr = 1) {
 }
 
 function wordRRotate(word, nr = 1) {
+    if(typeof(word) !== 'number') throw new Error(ERR030);
     if(nr < 0 ){
         return wordLRotate(word, -1 * nr);
     }
@@ -554,6 +558,7 @@ function wordRRotate(word, nr = 1) {
 }
 
 function dwordLRotate(dword, nr = 1) {
+    if(typeof(dword) !== 'number') throw new Error(ERR030);
     if(nr < 0 ){
         return dwordRRotate(dword, -1 * nr);
     }
@@ -577,6 +582,7 @@ function dwordLRotate(dword, nr = 1) {
 }
 
 function dwordRRotate(dword, nr = 1) {
+    if(typeof(dword) !== 'number') throw new Error(ERR030);
     if(nr < 0 ){
         return dwordLRotate(dword, -1 * nr);
     }
@@ -609,12 +615,13 @@ function dwordRRotate(dword, nr = 1) {
 //
 // RFC1321 step 3.1
 // ISO/IEC 797-1 Padding Method 2
-function paddBitarrBits(bitarr, bitBlockLen) {
+function paddBitarrBits(bitarr, bitBlockLen, minBitPadLen = 0) {
     if (!Array.isArray(bitarr)) throw Error(ERR020);
     if(bitBlockLen <= 0) throw Error(ERR070);
     // Clone the array first.
     bitarr = bitarr.slice();
     let padLen = bitBlockLen - (bitarr.length % bitBlockLen);
+    while(padLen < minBitPadLen) padLen += bitBlockLen;
     // We ALWAYS add padding.
     if(padLen <= 0) padLen = bitBlockLen;
     bitarr.push(1);
@@ -635,11 +642,12 @@ function unpaddBitarrBits(bitarr){
     return bitarr.slice(0, i);
 }
 
-// Padd a byte aray with bit padding. Padding is done one byte boundaries here (not within a byte).
-function paddBarrBits(barr, byteBlockLen) {
+// Pad a byte aray with bit padding. Padding is done one byte boundaries here (not within a byte).
+function paddBarrBits(barr, byteBlockLen, minBytePadLen = 0) {
     if (!Array.isArray(barr)) throw Error(ERR020);
     if(byteBlockLen < 0) throw Error(ERR070);
     let padLen = byteBlockLen - (barr.length * byteBlockLen);
+    while(padLen < minBytePadLen) padLen += byteBlockLen;
     // Clone the array first.
     barr = barr.slice();
     // We ALWAYS add padding.
