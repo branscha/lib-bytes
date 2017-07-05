@@ -52,7 +52,6 @@ test('rstr2barr', () => {
     expect(barr).toEqual([0, 1, 2, 255, 0, 0]);
 
     expect(() => rstr2barr(null)).toThrow(/Bytes\/010/);
-    expect(() => rstr2barr({})).toThrow(/Bytes\/010/);
 
     let rstr2 = "";
     for(let i = 0; i < 256; i++) rstr2 += (i %10);
@@ -68,7 +67,6 @@ test('barr2rstr', () => {
     expect(rstr).toBe("\u0000\u0001\u0002\u0003\u000d\u0000");
 
     expect(() => barr2rstr(null)).toThrow(/Bytes\/020/);
-    expect(() => barr2rstr({})).toThrow(/Bytes\/020/);
 
     let barr2 = [];
     for(let i = 0; i < 256; i++) barr2.push(i);
@@ -84,8 +82,7 @@ test('barr2warrL', () => {
     expect(warr).toEqual([0x0705, 0x0d0b, 0x0b0a]);
 
     expect(() => barr2warrL(null)).toThrow(/Bytes\/020/);
-    expect(() => barr2warrL({})).toThrow(/Bytes\/040/);
-    expect(() => barr2warrL([1, 2, 3])).toThrow(/Bytes\/050/);
+    expect(() => barr2warrL([1, 2, 3])).toThrow(/Bytes\/040/);
 });
 
 test('barr2warrB', () => {
@@ -96,8 +93,7 @@ test('barr2warrB', () => {
     expect(warr).toEqual([0x0507, 0x0b0d, 0x0a0b]);
 
     expect(() => barr2warrB(null)).toThrow(/Bytes\/020/);
-    expect(() => barr2warrB({})).toThrow(/Bytes\/040/);
-    expect(() => barr2warrB([1, 2, 3])).toThrow(/Bytes\/050/);
+    expect(() => barr2warrB([1, 2, 3])).toThrow(/Bytes\/040/);
 });
 
 test('warr2barrL', () => {
@@ -108,7 +104,6 @@ test('warr2barrL', () => {
     expect(barr).toEqual([0x05, 0x07, 0x0b, 0x0d, 0x0a, 0x0b]);
 
     expect(() => warr2barrL(null)).toThrow(/Bytes\/020/);
-    expect(() => warr2barrL({})).toThrow(/Bytes\/040/);
 });
 
 test('warr2barrB', () => {
@@ -119,7 +114,6 @@ test('warr2barrB', () => {
     expect(barr).toEqual([0x05, 0x07, 0x0b, 0x0d, 0x0a, 0x0b]);
 
     expect(() => warr2barrB(null)).toThrow(/Bytes\/020/);
-    expect(() => warr2barrB({})).toThrow(/Bytes\/040/);
 });
 
 test('barr2dwarrL', () => {
@@ -130,8 +124,7 @@ test('barr2dwarrL', () => {
     expect(dwarr).toEqual([0x09080706, 0x0d0c0b0a]);
 
     expect(() => barr2dwarrL(null)).toThrow(/Bytes\/020/);
-    expect(() => barr2dwarrL({})).toThrow(/Bytes\/040/);
-    expect(() => barr2dwarrL([1, 2, 3])).toThrow(/Bytes\/060/);
+    expect(() => barr2dwarrL([1, 2, 3])).toThrow(/Bytes\/040/);
 });
 
 test('barr2dwarrB', () => {
@@ -142,8 +135,7 @@ test('barr2dwarrB', () => {
     expect(dwarr).toEqual([0x06070809, 0x0a0b0c0d]);
 
     expect(() => barr2dwarrB(null)).toThrow(/Bytes\/020/);
-    expect(() => barr2dwarrB({})).toThrow(/Bytes\/040/);
-    expect(() => barr2dwarrB([1, 2, 3])).toThrow(/Bytes\/060/);
+    expect(() => barr2dwarrB([1, 2, 3])).toThrow(/Bytes\/040/);
 });
 
 test('dwarr2barrL', () => {
@@ -154,7 +146,6 @@ test('dwarr2barrL', () => {
     expect(barr).toEqual([0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d ]);
 
     expect(() => dwarr2barrL(null)).toThrow(/Bytes\/020/);
-    expect(() => dwarr2barrL({})).toThrow(/Bytes\/040/);
 });
 
 test('dwarr2barrB', () => {
@@ -165,7 +156,6 @@ test('dwarr2barrB', () => {
     expect(barr).toEqual([0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d ]);
 
     expect(() => dwarr2barrB(null)).toThrow(/Bytes\/020/);
-    expect(() => dwarr2barrB({})).toThrow(/Bytes\/040/);
 });
 
 test('barr2carrL', () => {
@@ -176,10 +166,9 @@ test('barr2carrL', () => {
     expect(carr).toEqual([[0x08070605, 0x04030201], [0x0e0d0c0b, 0x0a090807]]);
 
     expect(() => barr2carrL(null)).toThrow(/Bytes\/020/);
-    expect(() => barr2carrL({})).toThrow(/Bytes\/040/);
-    expect(() => barr2carrL([1, 2, 3])).toThrow(/Bytes\/080/);
-    expect(() => barr2carrL([1, 2, 3, 4], 3)).toThrow(/Bytes\/080/);
-    expect(() => barr2carrL([1, 2, 3], 4)).toThrow(/Bytes\/070/);
+    expect(() => barr2carrL([1, 2, 3])).toThrow(/Bytes\/040/);
+    expect(() => barr2carrL([1, 2, 3, 4], 3)).toThrow(/Bytes\/040/);
+    expect(() => barr2carrL([1, 2, 3], 4)).toThrow(/Bytes\/040/);
 });
 
 test('barr2carrB', () => {
@@ -190,10 +179,9 @@ test('barr2carrB', () => {
     expect(carr).toEqual([[0x01020304, 0x05060708], [0x0708090a, 0x0b0c0d0e]]);
 
     expect(() => barr2carrB(null)).toThrow(/Bytes\/020/);
-    expect(() => barr2carrB({})).toThrow(/Bytes\/040/);
-    expect(() => barr2carrB([1, 2, 3])).toThrow(/Bytes\/080/);
-    expect(() => barr2carrB([1, 2, 3, 4], 3)).toThrow(/Bytes\/080/);
-    expect(() => barr2carrB([1, 2, 3], 4)).toThrow(/Bytes\/070/);
+    expect(() => barr2carrB([1, 2, 3])).toThrow(/Bytes\/040/);
+    expect(() => barr2carrB([1, 2, 3, 4], 3)).toThrow(/Bytes\/040/);
+    expect(() => barr2carrB([1, 2, 3], 4)).toThrow(/Bytes\/040/);
 });
 
 test('carr2barrL', () => {
@@ -204,7 +192,6 @@ test('carr2barrL', () => {
     expect(barr).toEqual([0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,   0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e ]);
 
     expect(() => carr2barrL(null)).toThrow(/Bytes\/020/);
-    expect(() => carr2barrL({})).toThrow(/Bytes\/040/);
 });
 
 test('carr2barrB', () => {
@@ -215,7 +202,6 @@ test('carr2barrB', () => {
     expect(barr).toEqual([0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,   0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e ]);
 
     expect(() => carr2barrB(null)).toThrow(/Bytes\/020/);
-    expect(() => carr2barrB({})).toThrow(/Bytes\/040/);
 });
 
 test('dwarrLShift', () => {
@@ -348,9 +334,8 @@ test('byte2bitarrB', () => {
     expect(bitarr.length).toBe(8);
     expect(bitarr).toEqual([1, 1, 0, 0, 0, 0, 0, 1]);
 
-    expect(() => byte2bitarrB(null)).toThrow(/Bytes\/100/);
-    expect(() => byte2bitarrB({})).toThrow(/Bytes\/110/);
-    expect(() => byte2bitarrB("5")).toThrow(/Bytes\/110/);
+    expect(() => byte2bitarrB(null)).toThrow(/Bytes\/030/);
+    expect(() => byte2bitarrB("5")).toThrow(/Bytes\/030/);
 });
 
 test('byte2bitarrL', () => {
@@ -359,9 +344,8 @@ test('byte2bitarrL', () => {
     expect(bitarr.length).toBe(8);
     expect(bitarr).toEqual([1, 0, 0, 0, 0, 0, 1, 1]);
 
-    expect(() => byte2bitarrL(null)).toThrow(/Bytes\/100/);
-    expect(() => byte2bitarrL({})).toThrow(/Bytes\/110/);
-    expect(() => byte2bitarrL("5")).toThrow(/Bytes\/110/);
+    expect(() => byte2bitarrL(null)).toThrow(/Bytes\/030/);
+    expect(() => byte2bitarrL("5")).toThrow(/Bytes\/030/);
 });
 
 test('bitarr2byteB', () => {
@@ -369,9 +353,8 @@ test('bitarr2byteB', () => {
     let byte = bitarr2byteB(bitarr);
     expect(byte).toBe(0b11000001);
 
-    expect(() => bitarr2byteB(null)).toThrow(/Bytes\/120/);
-    expect(() => bitarr2byteB({})).toThrow(/Bytes\/130/);
-    expect(() => bitarr2byteB([1,0])).toThrow(/Bytes\/140/);
+    expect(() => bitarr2byteB(null)).toThrow(/Bytes\/020/);
+    expect(() => bitarr2byteB([1,0])).toThrow(/Bytes\/060/);
 });
 
 test('bitarr2byteL', () => {
@@ -379,9 +362,8 @@ test('bitarr2byteL', () => {
     let byte = bitarr2byteL(bitarr);
     expect(byte).toBe(0b10000011);
 
-    expect(() => bitarr2byteL(null)).toThrow(/Bytes\/120/);
-    expect(() => bitarr2byteL({})).toThrow(/Bytes\/130/);
-    expect(() => bitarr2byteL([1,0])).toThrow(/Bytes\/140/);
+    expect(() => bitarr2byteL(null)).toThrow(/Bytes\/020/);
+    expect(() => bitarr2byteL([1,0])).toThrow(/Bytes\/060/);
 });
 
 test('paddBitarrBits', () => {
@@ -396,9 +378,8 @@ test('paddBitarrBits', () => {
     expect(padded.length).toBe(16);
     expect(padded).toEqual([1, 0, 0, 0, 0, 0, 1 , 1, 1, 0, 0, 0, 0, 0, 0, 0]);
 
-    expect(() => paddBitarrBits(null, 8)).toThrow(/Bytes\/150/);
-    expect(() => paddBitarrBits({}, 8)).toThrow(/Bytes\/160/);
-    expect(() => paddBitarrBits([1, 1, 1, 1, 1, 1, 1, 1], -3)).toThrow(/Bytes\/170/);
+    expect(() => paddBitarrBits(null, 8)).toThrow(/Bytes\/020/);
+    expect(() => paddBitarrBits([1, 1, 1, 1, 1, 1, 1, 1], -3)).toThrow(/Bytes\/070/);
 });
 
 test('unpaddBitarrBits', () => {
@@ -407,9 +388,8 @@ test('unpaddBitarrBits', () => {
     expect(unpadded.length).toBe(3)
     expect(unpadded).toEqual([1, 0, 1]);
 
-    expect(() => unpaddBitarrBits(null)).toThrow(/Bytes\/180/);
-    expect(() => unpaddBitarrBits({})).toThrow(/Bytes\/190/);
-    expect(() => unpaddBitarrBits([0, 0, 0, 0, 0, 0, 0, 0])).toThrow(/Bytes\/250/);
+    expect(() => unpaddBitarrBits(null)).toThrow(/Bytes\/020/);
+    expect(() => unpaddBitarrBits([0, 0, 0, 0, 0, 0, 0, 0])).toThrow(/Bytes\/080/);
 });
 
 test('byteLRotate', () => {
