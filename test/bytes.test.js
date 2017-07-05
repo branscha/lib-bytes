@@ -33,6 +33,10 @@ import {
     wordRRotate as wordRRotate,
     dwordLRotate as dwordLRotate,
     dwordRRotate as dwordRRotate,
+    barr2bitarrB as barr2bitarrB,
+    barr2bitarrL as barr2bitarrL,
+    bitarr2barrB as bitarr2barrB,
+    bitarr2barrL as bitarr2barrL
 
 } from 'bytes';
 
@@ -428,4 +432,42 @@ test('byteRRotate', () => {
     expect(byteRRotate(0b10000000, 6)).toBe(0b00000010);
     expect(byteRRotate(0b10000000, 7)).toBe(0b00000001);
     expect(byteRRotate(0b10000000, 8)).toBe(0b10000000);
+});
+
+function constructSparseWord(bitPos) {
+    let arr = [];
+    bitPos = bitPos % 16;
+    for (let i = 0; i < 16; i++) {
+        if (i === bitPos) arr.push(1);
+        else arr.push(0);
+    }
+    return barr2warrB(bitarr2barrB(arr))[0];
+}
+
+function constructSparseDword(bitPos) {
+    let arr = [];
+    bitPos = bitPos % 32;
+    for (let i = 0; i < 32; i++) {
+        if (i === bitPos) arr.push(1);
+        else arr.push(0);
+    }
+    return barr2dwarrB(bitarr2barrB(arr))[0];
+}
+
+test('wordLRotate', () => {
+    let word = 0b1000000000000000;
+    for (let i = 1; i < 16; i++) {
+        let rotated = wordLRotate(word, i);
+        let std = constructSparseWord(15 + 1 - i);
+        expect(rotated).toBe(std);
+    }
+});
+
+test('wordRRotate', () => {
+    let word = 0b1000000000000000;
+    for (let i = 1; i < 16; i++) {
+        let rotated = wordRRotate(word, i);
+        let std = constructSparseWord(i);
+        expect(rotated).toBe(std);
+    }
 });

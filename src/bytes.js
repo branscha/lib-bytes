@@ -456,6 +456,45 @@ function bitarr2byteL(bitarr){
     return byte;
 }
 
+function barr2bitarrB(barr) {
+    // TODO TESTS
+    let bitarr = [];
+    for(let i = 0; i < barr.length; i++) {
+        bitarr = bitarr.concat(byte2bitarrB(barr[i]));
+    }
+    return bitarr;
+}
+
+function barr2bitarrL(barr) {
+    // TODO TESTS
+    let bitarr = [];
+    for(let i = 0; i < barr.length; i++) {
+        bitarr = bitarr.concat(byte2bitarrL(barr[i]));
+    }
+    return bitarr;
+}
+
+function bitarr2barrB(bitarr) {
+    // TODO TESTS
+    let barr = [];
+    let byteLen = bitarr.length / 8;
+    for(let i = 0; i < byteLen; i++) {
+        barr = barr.concat(bitarr2byteB(bitarr.slice(i * 8, (i * 8) + 8)));
+    }
+    return barr;
+}
+
+function bitarr2barrL(bitarr) {
+    // TODO TESTS
+    let barr = [];
+    let byteLen = bitarr.length / 8;
+    for(let i = 0; i < byteLen; i++) {
+        barr = barr.concat( bitarr2byteL(bitarr.slice(i * 8, (i*8) + 8)));
+    }
+    return barr;
+
+}
+
 // ROTATE OPERATORS
 
 function byteLRotate(byte, nr = 1) {
@@ -726,4 +765,8 @@ export {
     wordRRotate as wordRRotate,
     dwordLRotate as dwordLRotate,
     dwordRRotate as dwordRRotate,
+    barr2bitarrB as barr2bitarrB,
+    barr2bitarrL as barr2bitarrL,
+    bitarr2barrB as bitarr2barrB,
+    bitarr2barrL as bitarr2barrL
 }
