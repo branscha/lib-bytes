@@ -308,7 +308,7 @@ function dwarrNot(op1) {
  * @param nr
  * @returns {*}
  */
-function dwarrLShift(op1, nr) {
+function dwarrLShift(op1, nr = 1) {
     if (nr < 0) throw new Error(ERR090);
     if (nr === 0) return op1;
     else if (nr === 1) {
@@ -339,7 +339,7 @@ function dwarrLShift(op1, nr) {
  * @param nr
  * @returns {*}
  */
-function dwarrRSShift(op1, nr) {
+function dwarrRSShift(op1, nr = 1) {
     if (nr < 0) throw new Error(ERR090);
     if (nr === 0) return op1;
     else if (nr === 1) {
@@ -372,7 +372,7 @@ function dwarrRSShift(op1, nr) {
  * @param nr
  * @returns {*}
  */
-function dwarrRZShift(op1, nr) {
+function dwarrRZShift(op1, nr = 1) {
     if (nr < 0) throw new Error(ERR090);
     if (nr === 0) return op1;
     else if (nr === 1) {
@@ -395,6 +395,14 @@ function dwarrRZShift(op1, nr) {
         }
         return op1;
     }
+}
+
+function dwarrRRotate(dwarr, nr = 1) {
+
+}
+
+function dwarrRRotate(dwarr, nr = 1){
+
 }
 
 // Bit conversions
@@ -446,6 +454,146 @@ function bitarr2byteL(bitarr){
         byte = byte | (bitarr[8 - 1 -i] & 0b1);
     }
     return byte;
+}
+
+// ROTATE OPERATORS
+
+function byteLRotate(byte, nr = 1) {
+    if(nr < 0 ){
+        return byteRRotate(byte, -1 * nr);
+    }
+    else if(nr === 0) {
+        return byte;
+    }
+    else if(nr === 1) {
+        // Fetch carry (highest bit).
+        let carry = (byte & 0b10000000)?1:0;
+        // Rotate and rotate the carry back in.
+        return (byte << 1) & 0xff | carry;
+    }
+    else {
+        // Reduce nr rotations to have the same effect.
+        nr = nr % 8;
+        for(let i = 0; i < nr; i++) {
+            byte = byteLRotate(byte, 1);
+        }
+        return byte;
+    }
+}
+
+function byteRRotate(byte, nr = 1) {
+    if(nr < 0 ){
+        return byteLRotate(byte, -1 * nr);
+    }
+    else if(nr === 0) {
+        return byte;
+    }
+    else if(nr === 1) {
+        // Fetch carry (lowest bit).
+        let carry = (byte & 0b1)?0b10000000:0;
+        // Rotate and rotate the carry back in.
+        return (byte >>> 1) &0xff | carry;
+    }
+    else {
+        // Reduce nr rotations to have the same effect.
+        nr = nr % 8;
+        for(let i = 0; i < nr; i++) {
+            byte = byteRRotate(byte, 1);
+        }
+        return byte;
+    }
+}
+
+function wordLRotate(word, nr = 1) {
+    if(nr < 0 ){
+        return wordRRotate(word, -1 * nr);
+    }
+    else if(nr === 0) {
+        return word;
+    }
+    else if(nr === 1) {
+        // Fetch carry (highest bit).
+        let carry = (word & 0b1000000000000000)?1:0;
+        // Rotate and rotate the carry back in.
+        return (word << 1) & 0xffff | carry;
+    }
+    else {
+        // Reduce nr rotations to have the same effect.
+        nr = nr % 16;
+        for(let i = 0; i < nr; i++) {
+            word = wordLRotate(word, 1);
+        }
+        return word;
+    }
+}
+
+function wordRRotate(word, nr = 1) {
+    if(nr < 0 ){
+        return wordLRotate(word, -1 * nr);
+    }
+    else if(nr === 0) {
+        return word;
+    }
+    else if(nr === 1) {
+        // Fetch carry (lowest bit).
+        let carry = (word & 0b1)?0b1000000000000000:0;
+        // Rotate and rotate the carry back in.
+        return (word >>> 1) &0xffff | carry;
+    }
+    else {
+        // Reduce nr rotations to have the same effect.
+        nr = nr % 16;
+        for(let i = 0; i < nr; i++) {
+            word = wordRRotate(word, 1);
+        }
+        return word;
+    }
+}
+
+function dwordLRotate(dword, nr = 1) {
+    if(nr < 0 ){
+        return dwordRRotate(dword, -1 * nr);
+    }
+    else if(nr === 0) {
+        return dword;
+    }
+    else if(nr === 1) {
+        // Fetch carry (highest bit).
+        let carry = (dword & 0b10000000000000000000000000000000)?1:0;
+        // Rotate and rotate the carry back in.
+        return (dword << 1) & 0xffffffff | carry;
+    }
+    else {
+        // Reduce nr rotations to have the same effect.
+        nr = nr % 32;
+        for(let i = 0; i < nr; i++) {
+            dword = dwordLRotate(dword, 1);
+        }
+        return dword;
+    }
+}
+
+function dwordRRotate(dword, nr = 1) {
+    if(nr < 0 ){
+        return dwordLRotate(dword, -1 * nr);
+    }
+    else if(nr === 0) {
+        return dword;
+    }
+    else if(nr === 1) {
+        // Fetch carry (lowest bit).
+        let carry = (dword & 0b1)?0b10000000000000000000000000000000:0;
+        // Rotate and rotate the carry back in.
+        return (dword >>> 1) &0xffffffff | carry;
+    }
+    else {
+        // Reduce nr rotations to have the same effect.
+        nr = nr % 32;
+        for(let i = 0; i < nr; i++) {
+            dword = dwordRRotate(dword, 1);
+        }
+        return dword;
+    }
 }
 
 //////////
@@ -536,7 +684,7 @@ function unpaddPkcs5(barr) {
 // Note: 
 // * Padding should have been done first.
 // * Error if barr not a multiple of blocklen.
-function barr2blocks(barr, blockLen) {
+function barr2blocks(barr, byteBlockLen) {
 }
 
 function blocks2barr(blocks) {
@@ -572,4 +720,10 @@ export {
     bitarr2byteB as bitarr2byteB,
     paddBitarrBits as paddBitarrBits,
     unpaddBitarrBits as unpaddBitarrBits,
+    byteLRotate as byteLRotate,
+    byteRRotate as byteRRotate,
+    wordLRotate as wordLRotate,
+    wordRRotate as wordRRotate,
+    dwordLRotate as dwordLRotate,
+    dwordRRotate as dwordRRotate,
 }

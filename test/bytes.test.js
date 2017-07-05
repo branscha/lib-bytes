@@ -27,6 +27,12 @@ import {
     bitarr2byteB as bitarr2byteB,
     paddBitarrBits as paddBitarrBits,
     unpaddBitarrBits as unpaddBitarrBits,
+    byteLRotate as byteLRotate,
+    byteRRotate as byteRRotate,
+    wordLRotate as wordLRotate,
+    wordRRotate as wordRRotate,
+    dwordLRotate as dwordLRotate,
+    dwordRRotate as dwordRRotate,
 
 } from 'bytes';
 
@@ -400,4 +406,26 @@ test('unpaddBitarrBits', () => {
     expect(() => unpaddBitarrBits(null)).toThrow(/Bytes\/180/);
     expect(() => unpaddBitarrBits({})).toThrow(/Bytes\/190/);
     expect(() => unpaddBitarrBits([0, 0, 0, 0, 0, 0, 0, 0])).toThrow(/Bytes\/250/);
+});
+
+test('byteLRotate', () => {
+    expect(byteLRotate(0b10000000, 1)).toBe(0b00000001);
+    expect(byteLRotate(0b10000000, 2)).toBe(0b00000010);
+    expect(byteLRotate(0b10000000, 3)).toBe(0b00000100);
+    expect(byteLRotate(0b10000000, 4)).toBe(0b00001000);
+    expect(byteLRotate(0b10000000, 5)).toBe(0b00010000);
+    expect(byteLRotate(0b10000000, 6)).toBe(0b00100000);
+    expect(byteLRotate(0b10000000, 7)).toBe(0b01000000);
+    expect(byteLRotate(0b10000000, 8)).toBe(0b10000000);
+});
+
+test('byteRRotate', () => {
+    expect(byteRRotate(0b10000000, 1)).toBe(0b01000000);
+    expect(byteRRotate(0b10000000, 2)).toBe(0b00100000);
+    expect(byteRRotate(0b10000000, 3)).toBe(0b00010000);
+    expect(byteRRotate(0b10000000, 4)).toBe(0b00001000);
+    expect(byteRRotate(0b10000000, 5)).toBe(0b00000100);
+    expect(byteRRotate(0b10000000, 6)).toBe(0b00000010);
+    expect(byteRRotate(0b10000000, 7)).toBe(0b00000001);
+    expect(byteRRotate(0b10000000, 8)).toBe(0b10000000);
 });
