@@ -25,6 +25,8 @@ import {
     byte2bitarrL as byte2bitarrL,
     bitarr2byteL as bitarr2byteL,
     bitarr2byteB as bitarr2byteB,
+    paddBitarrBits as paddBitarrBits,
+    unpaddBitarrBits as unpaddBitarrBits,
 
 } from 'bytes';
 
@@ -335,6 +337,10 @@ test('byte2bitarrB', () => {
     let bitarr = byte2bitarrB(byte);
     expect(bitarr.length).toBe(8);
     expect(bitarr).toEqual([1, 1, 0, 0, 0, 0, 0, 1]);
+
+    expect(() => byte2bitarrB(null)).toThrow(/Bytes\/100/);
+    expect(() => byte2bitarrB({})).toThrow(/Bytes\/110/);
+    expect(() => byte2bitarrB("5")).toThrow(/Bytes\/110/);
 });
 
 test('byte2bitarrL', () => {
@@ -342,16 +348,56 @@ test('byte2bitarrL', () => {
     let bitarr = byte2bitarrL(byte);
     expect(bitarr.length).toBe(8);
     expect(bitarr).toEqual([1, 0, 0, 0, 0, 0, 1, 1]);
+
+    expect(() => byte2bitarrL(null)).toThrow(/Bytes\/100/);
+    expect(() => byte2bitarrL({})).toThrow(/Bytes\/110/);
+    expect(() => byte2bitarrL("5")).toThrow(/Bytes\/110/);
 });
 
 test('bitarr2byteB', () => {
     let bitarr = [1, 1, 0, 0, 0, 0, 0, 1];
     let byte = bitarr2byteB(bitarr);
     expect(byte).toBe(0b11000001);
+
+    expect(() => bitarr2byteB(null)).toThrow(/Bytes\/120/);
+    expect(() => bitarr2byteB({})).toThrow(/Bytes\/130/);
+    expect(() => bitarr2byteB([1,0])).toThrow(/Bytes\/140/);
 });
 
 test('bitarr2byteL', () => {
     let bitarr = [1, 1, 0, 0, 0, 0, 0, 1];
     let byte = bitarr2byteL(bitarr);
     expect(byte).toBe(0b10000011);
+
+    expect(() => bitarr2byteL(null)).toThrow(/Bytes\/120/);
+    expect(() => bitarr2byteL({})).toThrow(/Bytes\/130/);
+    expect(() => bitarr2byteL([1,0])).toThrow(/Bytes\/140/);
+});
+
+test('paddBitarrBits', () => {
+    let bitarr = [1,0,1];
+    let padded = paddBitarrBits(bitarr, 8);
+    expect(padded.length).toBe(8);
+    expect(padded).toEqual([1, 0, 1, 1, 0, 0, 0, 0]);
+
+    // Full block of padding should be added ...
+    bitarr = [1, 0, 0, 0, 0, 0, 1 , 1];
+    padded = paddBitarrBits(bitarr, 8);
+    expect(padded.length).toBe(16);
+    expect(padded).toEqual([1, 0, 0, 0, 0, 0, 1 , 1, 1, 0, 0, 0, 0, 0, 0, 0]);
+
+    expect(() => paddBitarrBits(null, 8)).toThrow(/Bytes\/150/);
+    expect(() => paddBitarrBits({}, 8)).toThrow(/Bytes\/160/);
+    expect(() => paddBitarrBits([1, 1, 1, 1, 1, 1, 1, 1], -3)).toThrow(/Bytes\/170/);
+});
+
+test('unpaddBitarrBits', () => {
+    let padded = [1, 0, 1, 1, 0, 0, 0, 0];
+    let unpadded = unpaddBitarrBits(padded);
+    expect(unpadded.length).toBe(3)
+    expect(unpadded).toEqual([1, 0, 1]);
+
+    expect(() => unpaddBitarrBits(null)).toThrow(/Bytes\/180/);
+    expect(() => unpaddBitarrBits({})).toThrow(/Bytes\/190/);
+    expect(() => unpaddBitarrBits([0, 0, 0, 0, 0, 0, 0, 0])).toThrow(/Bytes\/250/);
 });

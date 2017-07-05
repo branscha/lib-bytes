@@ -12,6 +12,17 @@ const ERR110 = "Bytes/110: Input error. Expected a number input.";
 const ERR120 = "Bytes/120: Input error. Expected an array input, cannot convert a null to a byte.";
 const ERR130 = "Bytes/130: Input error. Expected an array of bits as input.";
 const ERR140 = "Bytes/140: Input error. The bit array should exactly be 8 bits long.";
+const ERR150 = "Bytes/150: Input error. Cannot bit padd a null array.";
+const ERR160 = "Bytes/160: Input error. Expected an array input to bit-padd.";
+const ERR170 = "Bytes/170: Input error. The bit block length should be > 0.";
+const ERR180 = "Bytes/180: Input error. Cannot unpadd a null array.";
+const ERR190 = "Bytes/190: Input error. Expected an array input to bit-unpadd.";
+const ERR200 = "Bytes/200: Input error. Cannot bit-padd a null byte array.";
+const ERR210 = "Bytes/210: Input error. Expected a byte array to bit-padd.";
+const ERR220 = "Bytes/220: Input error. The byte block length should be > 0.";
+const ERR230 = "Bytes/230: Input error. Cannot bit-unpadd a null byte array.";
+const ERR240 = "Bytes/240: Input error. Expected a byte array to bit-unpadd.";
+const ERR250 = "Bytes/250: Could not find any bit padding.";
 
 // Raw string.
 
@@ -437,28 +448,72 @@ function bitarr2byteL(bitarr){
     return byte;
 }
 
-// Padding
+//////////
+// PADDING
+//////////
 
-
-// Array itself is modified. Copy the array yourself if you do not want
-// this behavior.
+// Returns a padded copy of the array.
+// Padding is ALWAYS added to prevent ambiguities.
+// If a block does not need padding, a full block of padding is added.
 //
 // RFC1321 step 3.1
 // ISO/IEC 797-1 Padding Method 2
-function paddBits(bitarr, bitBlockLen){
-    if(bitarr === null) throw Error();
-    if(!Array.isArray(bitarr)) throw Error();
-    let padLen = (bitarr.length % bitBlockLen);
-    if(padLen) {
-        bitarr.push(1);
+function paddBitarrBits(bitarr, bitBlockLen) {
+    if (bitarr === null) throw Error(ERR150);
+    if (!Array.isArray(bitarr)) throw Error(ERR160);
+    if(bitBlockLen <= 0) throw Error(ERR170);
+    // Clone the array first.
+    bitarr = bitarr.slice();
+    let padLen = bitBlockLen - (bitarr.length % bitBlockLen);
+    // We ALWAYS add padding.
+    if(padLen <= 0) padLen = bitBlockLen;
+    bitarr.push(1);
+    padLen--;
+    while (padLen > 0) {
+        bitarr.push(0);
         padLen--;
-        while(padLen > 0) {
-            bitarr.push(0);
-            padLen--;
-        }
     }
     return bitarr;
 }
+
+// It is assumed that padding is ALWAYS there, otherwise padding/unpadding would be ambiguous.
+function unpaddBitarrBits(bitarr){
+    if (bitarr === null) throw Error(ERR180);
+    if (!Array.isArray(bitarr)) throw Error(ERR190);
+    let i = bitarr.length - 1;
+    while(i >= 0 && bitarr[i] === 0) i--;
+    if(i < 0 || bitarr[i] !== 1) throw Error(ERR250);
+    return bitarr.slice(0, i);
+}
+
+// Padd a byte aray with bit padding. Padding is done one byte boundaries here (not within a byte).
+function paddBarrBits(barr, byteBlockLen) {
+    if (barr === null) throw Error(ERR200);
+    if (!Array.isArray(barr)) throw Error(ERR210);
+    if(byteBlockLen < 0) throw Error(ERR220);
+    let padLen = byteBlockLen - (barr.length * byteBlockLen);
+    // Clone the array first.
+    barr = barr.slice();
+    // We ALWAYS add padding.
+    if(padLen <= 0) padLen = byteBlockLen;
+    barr.push(0b10000000);
+    padLen--;
+    while (padLen > 0) {
+        barr.push(0);
+        padLen--;
+    }
+}
+
+// It is assumed that padding is ALWAYS there, otherwise padding/unpadding would be ambiguous.
+function unpaddBarrBits(barr) {
+    if (barr === null) throw Error(ERR230);
+    if (!Array.isArray(barr)) throw Error(ERR240);
+    let i = barr.length - 1;
+    while(i >= 0 && barr[i] === 0) i--;
+    if(i < 0 || barr[i] !== 0b10000000) throw Error(ERR250);
+    return barr.slice(0, i);
+}
+
 
 function paddPkcs7(barr, blockByteLen) {
 }
@@ -515,4 +570,6 @@ export {
     byte2bitarrL as byte2bitarrL,
     bitarr2byteL as bitarr2byteL,
     bitarr2byteB as bitarr2byteB,
+    paddBitarrBits as paddBitarrBits,
+    unpaddBitarrBits as unpaddBitarrBits,
 }
