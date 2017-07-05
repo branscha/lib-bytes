@@ -392,7 +392,7 @@ function dwarrRZShift(op1, nr = 1) {
 
 function dwarrRRotate(dwarr, nr = 1) {
     if(nr < 0) {
-        return dwarrRRotate(dwarr, -1 * nr);
+        return dwarrLRotate(dwarr, -1 * nr);
     }
     else if(nr === 0) {
         return dwarr;
@@ -436,8 +436,9 @@ function dwarrLRotate(dwarr, nr = 1){
     }
 }
 
-// Bit conversions
-// Only on individual bytes.
+
+// BIT ARRAY
+////////////
 
 function byte2bitarrB(byte) {
     if(typeof(byte) !== 'number') throw new Error(ERR030);
@@ -522,7 +523,8 @@ function bitarr2barrL(bitarr) {
 
 }
 
-// ROTATE OPERATORS
+// ROTATION
+////////////
 
 function byteLRotate(byte, nr = 1) {
     if(typeof(byte) !== 'number') throw new Error(ERR030);
