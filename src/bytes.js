@@ -223,6 +223,14 @@ function dwarr2barrB(dwarr) {
 // COMPOSITE ARRAY
 //////////////////
 
+/**
+ * Convert a byte array into a composite array. The bytes are organized in little endian order.
+ * A composite can hold unlimited number of bytes, it is not restricted to the 32-bit JavaScript boundary.
+ * A composite is represented by a big endian 32-bit dword array.
+ * @param {Array.<Number>} barr - Byte array.
+ * @returns {Array.<Number>} - Composite array.
+ * @public
+ */
 function barr2carrL(barr, carrByteSize) {
     if (!Array.isArray(barr)) throw new Error(ERR020);
     if (!carrByteSize || carrByteSize % 4) throw new Error(ERR040(4));
@@ -237,6 +245,14 @@ function barr2carrL(barr, carrByteSize) {
     return carr;
 }
 
+/**
+ * Convert a byte array into a composite array. The bytes are organized in big endian order.
+ * A composite can hold unlimited number of bytes, it is not restricted to the 32-bit JavaScript boundary.
+ * A composite is represented by a big endian 32-bit dword array.
+ * @param {Array.<Number>} barr - Byte array.
+ * @returns {Array.<Number>} - Composite array.
+ * @public
+ */
 function barr2carrB(barr, carrByteSize) {
     if (!Array.isArray(barr)) throw new Error(ERR020);
     if (!carrByteSize || carrByteSize % 4) throw new Error(ERR040(4));
@@ -250,6 +266,14 @@ function barr2carrB(barr, carrByteSize) {
     return carr;
 }
 
+/**
+ * Convert a composite array into a byte array. The bytes are organized in little endian order.
+ * A composite can hold unlimited number of bytes, it is not restricted to the 32-bit JavaScript boundary.
+ * A composite is represented by a big endian 32-bit dword array.
+ * @param {Array.<Number>} carr - Composite array.
+ * @returns {Array.<Number>} - Byte array.
+ * @public
+ */
 function carr2barrL(carr) {
     if (!Array.isArray(carr)) throw new Error(ERR020);
     let barr = [];
@@ -262,6 +286,14 @@ function carr2barrL(carr) {
     return barr;
 }
 
+/**
+ * Convert a composite array into a byte array. The bytes are organized in big endian order.
+ * A composite can hold unlimited number of bytes, it is not restricted to the 32-bit JavaScript boundary.
+ * A composite is represented by a big endian 32-bit dword array.
+ * @param {Array.<Number>} carr - Composite array.
+ * @returns {Array.<Number>} - Byte array.
+ * @public
+ */
 function carr2barrB(carr) {
     if (!Array.isArray(carr)) throw new Error(ERR020);
     let barr = [];
@@ -273,9 +305,9 @@ function carr2barrB(carr) {
 }
 
 /**
- * A carr (composites array) represents an array of super-words of the same size.
- * A super-word is represented by a big endian dwarr (a dword array, most significant dword first).
- * This function test if a data structure can pass as a valid carr.
+ * A composite array (carr) represents an array of super-words of the same size.
+ * A super-word is represented by a big endian 32-bit dword array (dwarr).
+ * This function test if a data structure can pass as a valid composite array.
  * @param carr
  * @returns {boolean}
  */
@@ -294,7 +326,6 @@ function isConsistentCarr(carr) {
     }
     return true;
 }
-
 
 // DWORD ARRAY FUNCtIONS
 /////////////////////////
@@ -486,7 +517,6 @@ function dwarrLRotate(dwarr, nr = 1){
     }
 }
 
-
 // BIT ARRAY
 ////////////
 
@@ -570,7 +600,6 @@ function bitarr2barrL(bitarr) {
         barr = barr.concat( bitarr2byteL(bitarr.slice(i * 8, (i*8) + 8)));
     }
     return barr;
-
 }
 
 // ROTATION
