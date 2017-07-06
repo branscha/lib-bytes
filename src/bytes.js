@@ -605,6 +605,12 @@ function bitarr2barrL(bitarr) {
 // ROTATION
 ////////////
 
+/**
+ * Rotate the bits of a byte to the left, the high order bit will re-appear as the low order bit.
+ * @param {Number} byte - The bit values to rotate.
+ * @param {Number} nr - The number of bits to rotate, negative number rotates the other direction.
+ * @returns {Number} - A rotated byte.
+ */
 function byteLRotate(byte, nr = 1) {
     if(typeof(byte) !== 'number') throw new Error(ERR030);
     if(nr < 0 ){
@@ -618,6 +624,12 @@ function byteLRotate(byte, nr = 1) {
     }
 }
 
+/**
+ * Rotate the bits of a byte to the right, the low order bit will re-appear as the high order bit.
+ * @param {Number} byte - The bit values to rotate.
+ * @param {Number} nr - The number of bits to rotate, negative number rotates the other direction.
+ * @returns {Number} - A rotated byte.
+ */
 function byteRRotate(byte, nr = 1) {
     if(typeof(byte) !== 'number') throw new Error(ERR030);
     if(nr < 0 ){
@@ -631,6 +643,12 @@ function byteRRotate(byte, nr = 1) {
     }
 }
 
+/**
+ * Rotate the bits of a 16-bit word to the left, the high order bit will re-appear as the low order bit.
+ * @param {Number} word - The bit values to rotate.
+ * @param {Number} nr - The number of bits to rotate, negative number rotates the other direction.
+ * @returns {Number} - A rotated word.
+ */
 function wordLRotate(word, nr = 1) {
     if(typeof(word) !== 'number') throw new Error(ERR030);
     if(nr < 0 ){
@@ -644,6 +662,12 @@ function wordLRotate(word, nr = 1) {
     }
 }
 
+/**
+ * Rotate the bits of a 16-bit word to the right, the low order bit will re-appear as the high order bit.
+ * @param {Number} word - The bit values to rotate.
+ * @param {Number} nr - The number of bits to rotate, negative number rotates the other direction.
+ * @returns {Number} - A rotated word.
+ */
 function wordRRotate(word, nr = 1) {
     if(typeof(word) !== 'number') throw new Error(ERR030);
     if(nr < 0 ){
@@ -657,51 +681,55 @@ function wordRRotate(word, nr = 1) {
     }
 }
 
+/**
+ * Rotate the bits of a 32-bit dword to the left, the high order bit will re-appear as the low order bit.
+ * @param {Number} dword - The bit values to rotate.
+ * @param {Number} nr - The number of bits to rotate, negative number rotates the other direction.
+ * @returns {Number} - A rotated dword.
+ */
 function dwordLRotate(dword, nr = 1) {
     if(typeof(dword) !== 'number') throw new Error(ERR030);
+    nr = nr % 32;
     if(nr < 0 ){
         return dwordRRotate(dword, -1 * nr);
     }
-    else if(nr === 0) {
-        return dword;
-    }
-    else if(nr === 1) {
-        // Fetch carry (highest bit).
-        let carry = (dword & 0b10000000000000000000000000000000)?1:0;
-        // Rotate and rotate the carry back in.
-        return (dword << 1) & 0xffffffff | carry;
+    else if(nr <= 16) {
+        // Put a copy of the high order 16-bit word in a separate variable.
+        // Rotate both dword and the copy, the high order word of the copy will contain the bits we need.
+        // Since the max bit storage in JavaScript is 32 bits we can only apply this trick with half of the bits.
+        let overflow = ((dword >>> 16) & 0xffff) << nr;
+        return (dword << nr) | (overflow >>> 16);
     }
     else {
-        // Reduce nr rotations to have the same effect.
-        nr = nr % 32;
-        for(let i = 0; i < nr; i++) {
-            dword = dwordLRotate(dword, 1);
-        }
-        return dword;
+        // We will have to  apply our trick twice.
+        let first = dwordLRotate(dword, 16);
+        return dwordLRotate(first, nr - 16);
     }
 }
 
+/**
+ * Rotate the bits of a 32-bit dword to the right, the low order bit will re-appear as the high order bit.
+ * @param {Number} dword - The bit values to rotate.
+ * @param {Number} nr - The number of bits to rotate, negative number rotates the other direction.
+ * @returns {Number} - A rotated dword.
+ */
 function dwordRRotate(dword, nr = 1) {
     if(typeof(dword) !== 'number') throw new Error(ERR030);
+    nr = nr % 32;
     if(nr < 0 ){
         return dwordLRotate(dword, -1 * nr);
     }
-    else if(nr === 0) {
-        return dword;
-    }
-    else if(nr === 1) {
-        // Fetch carry (lowest bit).
-        let carry = (dword & 0b1)?0b10000000000000000000000000000000:0;
-        // Rotate and rotate the carry back in.
-        return (dword >>> 1) &0xffffffff | carry;
+    else if(nr <= 16) {
+        // Put a copy of the low order 16-bit word in a separate variable.
+        // Rotate both dword and the copy, the high order word of the copy will contain the bits we need.
+        // Since the max bit storage in JavaScript is 32 bits we can only apply this trick with half of the bits.
+        let overflow = ((dword << 16) >> nr) & 0xffff;
+        return (dword >>> nr) | overflow;
     }
     else {
-        // Reduce nr rotations to have the same effect.
-        nr = nr % 32;
-        for(let i = 0; i < nr; i++) {
-            dword = dwordRRotate(dword, 1);
-        }
-        return dword;
+        // We will have to  apply our trick twice.
+        let first = dwordRRotate(dword, 16);
+        return dwordRRotate(first, nr - 16);
     }
 }
 
