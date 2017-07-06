@@ -45,6 +45,10 @@ import {
     unpaddPkcs7 as unpaddPkcs7,
     paddPkcs5 as paddPkcs5,
     unpaddPkcs5 as unpaddPkscs5,
+    paddLenMarker as paddLenMarker,
+    unpaddLenMarker as unpaddLenMarker,
+    paddZeroes as paddZeroes,
+    unpaddZeroes as unpaddZeroes,
 } from 'bytes';
 
 test('rstr2barr', () => {
@@ -576,4 +580,30 @@ test('unpaddPkcs7', () => {
     expect(unpaddPkcs7([1, 2, 3, 5, 5, 5, 5, 5])).toEqual([1, 2, 3]);
     expect(() => unpaddPkcs7(null)).toThrow(/Bytes\/020/);
     expect(() => unpaddPkcs7([1, 2, 3, 2, 8])).toThrow(/Bytes\/080/);
+});
+
+test('paddLenMarker', () => {
+    expect(paddLenMarker([1, 2, 3], 5)).toEqual([1, 2, 3, 0, 2]);
+    expect(paddLenMarker([1, 2, 3], 8)).toEqual([1, 2, 3, 0, 0, 0, 0, 5]);
+    expect(() => paddLenMarker(null)).toThrow(/Bytes\/020/);
+    expect(() => paddLenMarker([1, 2], 500)).toThrow(/Bytes\/110/);
+});
+
+test('unpaddLenMarker', () => {
+    expect(unpaddLenMarker([1, 2, 3, 0, 2])).toEqual([1, 2, 3]);
+    expect(unpaddLenMarker([1, 2, 3, 0, 0, 0, 0, 5])).toEqual([1, 2, 3]);
+    expect(() => unpaddLenMarker(null)).toThrow(/Bytes\/020/);
+    expect(() => unpaddLenMarker([1, 2, 3, 2, 3])).toThrow(/Bytes\/080/);
+});
+
+test('paddZeroes', () => {
+    expect(paddZeroes([1, 2, 3], 5)).toEqual([1, 2, 3, 0, 0]);
+    expect(paddZeroes([1, 2, 3], 8)).toEqual([1, 2, 3, 0, 0, 0, 0, 0]);
+    expect(() => paddZeroes(null)).toThrow(/Bytes\/020/);
+});
+
+test('unpaddZeroes', () => {
+    expect(unpaddZeroes([1, 2, 3, 0, 0])).toEqual([1, 2, 3]);
+    expect(unpaddZeroes([1, 2, 3, 0, 0, 0, 0, 0])).toEqual([1, 2, 3]);
+    expect(() => unpaddZeroes(null)).toThrow(/Bytes\/020/);
 });

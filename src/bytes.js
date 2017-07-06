@@ -8,8 +8,8 @@ const ERR070 = "Bytes/070: The block length should be > 0.";
 const ERR080 = "Bytes/080: Inconsistent padding.";
 const ERR090 = "Bytes/090: Array length should be a multiple of the block length.";
 const ERR100 = "Bytes/100: Expected an array of arrays.";
-const ERR110 = "Bytes/110: PKCS7 padding can be maximal 256 bytes long.";
-const ERR120 = "Bytes/120: PKCS5 padding can be maximal 8 bytes long.";
+const ERR110 = "Bytes/110: Padding length max. 256 exceeded.";
+const ERR120 = "Bytes/120: Padding length max. 8 exceeded.";
 
 // RAW STRING
 /////////////
@@ -759,6 +759,7 @@ function unpaddBitarrBits(bitarr){
 }
 
 // Pad a byte array with bit padding. Padding is done one byte boundaries here (not within a byte).
+// ISO/IEC 7816-4
 function paddBarrBits(barr, byteBlockLen, minBytePadLen = 0) {
     if (!Array.isArray(barr)) throw Error(ERR020);
     if(byteBlockLen < 0) throw Error(ERR070);
@@ -820,6 +821,56 @@ function paddPkcs5(barr, blockByteLen) {
 
 function unpaddPkcs5(barr) {
     return unpaddPkcs7(barr);
+}
+
+// Append zeroes, last byte is padding length.
+// ANSI X.923
+function paddLenMarker(barr, blockByteLen) {
+    if (!Array.isArray(barr)) throw new Error(ERR020);
+    if (blockByteLen <= 0) throw new Error(ERR070);
+    if(blockByteLen > 256) throw new Error(ERR110);
+    let padLen = blockByteLen - (barr.length % blockByteLen);
+    // We ALWAYS add padding.
+    if(padLen <= 0) padLen = blockByteLen;
+    // Clone the array first.
+    barr = barr.slice();
+    for (let i = 0; i < padLen - 1; i++) barr.push(0);
+    barr.push(padLen);
+    return barr;
+}
+
+function unpaddLenMarker(barr) {
+    if (!Array.isArray(barr)) throw new Error(ERR020);
+    let padLen = barr[barr.length -1];
+    if(padLen > 256) throw new Error(ERR110);
+    if(padLen > barr.length) throw new Error(ERR080);
+    // Verify the padding contents.
+    for(let i = barr.length - padLen; i < barr.length - 1; i++) {
+        if(barr[i] !== 0) throw new Error(ERR080);
+    }
+    return barr.slice(0, barr.length - padLen);
+}
+
+// Often used but padding/unpadding can lead to information loss ...
+// Not reversible ... might loose information ...
+function paddZeroes(barr, blockByteLen) {
+    if (!Array.isArray(barr)) throw new Error(ERR020);
+    if (blockByteLen <= 0) throw new Error(ERR070);
+    let padLen = blockByteLen - (barr.length % blockByteLen);
+    // We ALWAYS add padding.
+    if(padLen <= 0) padLen = blockByteLen;
+    // Clone the array first.
+    barr = barr.slice();
+    for (let i = 0; i < padLen ; i++) barr.push(0);
+    return barr;
+}
+
+function unpaddZeroes(barr) {
+    if (!Array.isArray(barr)) throw new Error(ERR020);
+    // Count nr of zeroes at the end.
+    let nrZeroes = 0;
+    for(let i = barr.length - 1; (i > 0) && (barr[i] === 0); i--) nrZeroes++;
+    return barr.slice(0, barr.length - nrZeroes);
 }
 
 // BLOCK FUNCTIONS
@@ -898,4 +949,8 @@ export {
     unpaddPkcs7 as unpaddPkcs7,
     paddPkcs5 as paddPkcs5,
     unpaddPkcs5 as unpaddPkscs5,
+    paddLenMarker as paddLenMarker,
+    unpaddLenMarker as unpaddLenMarker,
+    paddZeroes as paddZeroes,
+    unpaddZeroes as unpaddZeroes,
 }
