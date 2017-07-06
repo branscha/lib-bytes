@@ -38,8 +38,9 @@ import {
     bitarr2barrB as bitarr2barrB,
     bitarr2barrL as bitarr2barrL,
     dwarrRRotate as dwarrRRotate,
-    dwarrLRotate as dwarrLRotate
-
+    dwarrLRotate as dwarrLRotate,
+    barr2blocks as barr2blocks,
+    blocks2barr as blocks2barr,
 } from 'bytes';
 
 test('rstr2barr', () => {
@@ -543,4 +544,18 @@ test('dwarrLRotate', () => {
     bytes2 = dwarr2barrB(sdwarr);
     expect(bytes2.length).toBe(8);
     expect(bytes2).toEqual([0b00001000,0,0,0,0,0,0,0])
+});
+
+test('barr2blocks', ()=>{
+    expect(barr2blocks([1, 2, 3, 4, 5, 6, 7, 8, 9], 3)).toEqual([[1, 2, 3], [4, 5, 6], [7, 8, 9]]);
+    expect(barr2blocks([1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2], 1)).toEqual([[1], [2], [1], [2],[1], [2],[1], [2],[1], [2],[1], [2],]);
+    expect(() => barr2blocks(null, 5)).toThrow(/Bytes\/020/);
+    expect(() => barr2blocks([1, 2, 3, 4, 5, 6], 5)).toThrow(/Bytes\/090/);
+});
+
+test('blocks2barr', ()=>{
+    expect(blocks2barr([[1, 2, 3], [4, 5, 6], [7, 8, 9]])).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    expect(blocks2barr([[1], [2], [1], [2],[1], [2],[1], [2],[1], [2],[1], [2],])).toEqual([1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2]);
+    expect(() => blocks2barr(null)).toThrow(/Bytes\/020/);
+    expect(() => blocks2barr([[1, 2, 3], true, [7, 8, 9]])).toThrow(/Bytes\/100/);
 });

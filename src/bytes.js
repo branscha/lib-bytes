@@ -6,6 +6,8 @@ const ERR050 = "Bytes/050: Number of shifts should be >= 0.";
 const ERR060 = (len) => `Bytes/060: Array length should be exactly ${len}.`;
 const ERR070 = "Bytes/070: The block length should be > 0.";
 const ERR080 = "Bytes/080: No bit padding found.";
+const ERR090 = "Bytes/090: Array length should be a multiple of the block length."
+const ERR100 = "Bytes/100: Expected an array of arrays."
 
 // RAW STRING
 /////////////
@@ -15,6 +17,7 @@ const ERR080 = "Bytes/080: No bit padding found.";
  * The high order byte of the character (which is 16 bits) is ignored.
  * @param {String} rstr - A raw string.
  * @returns {Array.<number>} - A byte array.
+ * @public
  */
 function rstr2barr(rstr) {
     if (!(typeof(rstr) === 'string')) throw new Error(ERR010);
@@ -32,6 +35,7 @@ function rstr2barr(rstr) {
  * Only the low order byte of the character is taken into account the higher order bytes are ignored.
  * @param {Array.<Number>} barr - A byte array.
  * @returns {String} - A raw string.
+ * @public
  */
 function barr2rstr(barr) {
     if (!Array.isArray(barr)) throw new Error(ERR020);
@@ -52,6 +56,7 @@ function barr2rstr(barr) {
  * Each pair of bytes is converted into a 16-bit word, the first byte is the low order byte, the second byte is the high order byte.
  * @param {Array.<Number>} barr - Byte array
  * @returns {Array.<Number>} - Word array.
+ * @public
  */
 function barr2warrL(barr) {
     if (!Array.isArray(barr)) throw new Error(ERR020);
@@ -71,6 +76,7 @@ function barr2warrL(barr) {
  * Each pair of bytes is converted into a 16-bit word, the first byte is the high order byte, the second byte is the low order byte.
  * @param {Array.<Number>} barr - Byte array
  * @returns {Array.<Number>} - Word array.
+ * @public
  */
 function barr2warrB(barr) {
     if (!Array.isArray(barr)) throw new Error(ERR020);
@@ -85,6 +91,13 @@ function barr2warrB(barr) {
     return warr;
 }
 
+/**
+ * Convert a 16-bit word array into a byte array. The bytes are organized in little endian order.
+ * Each 16-bit word is converted into a pair of bytes, the first byte is the low order byte, the second byte is the high order byte.
+ * @param {Array.<Number>} warr - A word array, 16 bits will be used.
+ * @returns {Array.<Number>} - Byte array, little endian.
+ * @public
+ */
 function warr2barrL(warr) {
     if (!Array.isArray(warr)) throw new Error(ERR020);
     let barr = [];
@@ -97,6 +110,13 @@ function warr2barrL(warr) {
     return barr;
 }
 
+/**
+ * Convert a 16-bit word array into a byte array. The bytes are organized in big endian order.
+ * Each 16-bit word is converted into a pair of bytes, the first byte is the high order byte, the second byte is the low order byte.
+ * @param {Array.<Number>} warr - A word array, 16 bits will be used.
+ * @returns {Array.<Number>} - Byte array.
+ * @public
+ */
 function warr2barrB(warr) {
     if (!Array.isArray(warr)) throw new Error(ERR020);
     let barr = [];
@@ -112,6 +132,13 @@ function warr2barrB(warr) {
 // DWORD ARRAY
 //////////////
 
+/**
+ * Convert a byte array into a 32-bit word (aka. dword) array. The bytes are organized in little endian order.
+ * Each quadruple of bytes is converted into a 32-bit word, the first byte is the low order byte.
+ * @param {Array.<Number>} barr - Byte array.
+ * @returns {Array.<Number>} - Dword array.
+ * @public
+ */
 function barr2dwarrL(barr) {
     if (!Array.isArray(barr)) throw new Error(ERR020);
     if (barr.length % 4) throw new Error(ERR040(4));
@@ -127,6 +154,13 @@ function barr2dwarrL(barr) {
     return warr;
 }
 
+/**
+ * Convert a byte array into a 32-bit word (aka. dword) array. The bytes are organized in big endian order.
+ * Each quadruple of bytes is converted into a 32-bit word, the first byte is the high order byte.
+ * @param {Array.<Number>} barr - Byte array.
+ * @returns {Array.<Number>} - Dword array.
+ * @public
+ */
 function barr2dwarrB(barr) {
     if (!Array.isArray(barr)) throw new Error(ERR020);
     if (barr.length % 4) throw new Error(ERR040(4));
@@ -142,6 +176,13 @@ function barr2dwarrB(barr) {
     return warr;
 }
 
+/**
+ * Convert a 32-bit word (aka. dword) array into a byte array. The bytes are organized in little endian order.
+ * Each 32-bit word is converted into a quadruple of bytes, the first byte is the low order byte.
+ * @param {Array.<Number>} dwarr - Dword array.
+ * @returns {Array.<Number>} - Byte array.
+ * @public
+ */
 function dwarr2barrL(dwarr) {
     if (!Array.isArray(dwarr)) throw new Error(ERR020);
     let barr = [];
@@ -156,6 +197,13 @@ function dwarr2barrL(dwarr) {
     return barr;
 }
 
+/**
+ * Convert a 32-bit word (aka. dword) array into a byte array. The bytes are organized in big endian order.
+ * Each 32-bit word is converted into a quadruple of bytes, the first byte is the low order byte.
+ * @param {Array.<Number>} dwarr - Dword array.
+ * @returns {Array.<Number>} - Byte array.
+ * @public
+ */
 function dwarr2barrB(dwarr) {
     if (!Array.isArray(dwarr)) throw new Error(ERR020);
     let barr = [];
@@ -170,8 +218,8 @@ function dwarr2barrB(dwarr) {
     return barr;
 }
 
-// CARR ARRAY
-/////////////
+// COMPOSITE ARRAY
+//////////////////
 
 function barr2carrL(barr, carrByteSize) {
     if (!Array.isArray(barr)) throw new Error(ERR020);
@@ -751,14 +799,29 @@ function unpaddPkcs5(barr) {
 
 // Blocks
 
-
 // Note: 
 // * Padding should have been done first.
 // * Error if barr not a multiple of blocklen.
 function barr2blocks(barr, byteBlockLen) {
+    if (!Array.isArray(barr)) throw new Error(ERR020);
+    if (byteBlockLen <= 0) throw new Error(ERR070);
+    if (barr.length % byteBlockLen) throw new Error(ERR090);
+    let blocks = [];
+    let nrBlocks = barr.length / byteBlockLen;
+    for (let i = 0; i < nrBlocks; i++) {
+        blocks.push(barr.slice(i * byteBlockLen, (i * byteBlockLen) + byteBlockLen));
+    }
+    return blocks;
 }
 
 function blocks2barr(blocks) {
+    if(!Array.isArray(blocks)) throw new Error(ERR020);
+    let barr = [];
+    for(let i = 0; i < blocks.length; i++) {
+        if(!Array.isArray(blocks[i])) throw new Error(ERR100);
+        barr = barr.concat(blocks[i]);
+    }
+    return barr;
 }
 
 
@@ -802,5 +865,7 @@ export {
     bitarr2barrB as bitarr2barrB,
     bitarr2barrL as bitarr2barrL,
     dwarrRRotate as dwarrRRotate,
-    dwarrLRotate as dwarrLRotate
+    dwarrLRotate as dwarrLRotate,
+    barr2blocks as barr2blocks,
+    blocks2barr as blocks2barr,
 }
