@@ -701,9 +701,8 @@ function dwordLRotate(dword, nr = 1) {
         return (dword << nr) | (overflow >>> 16);
     }
     else {
-        // We will have to  apply our trick twice.
-        let first = dwordLRotate(dword, 16);
-        return dwordLRotate(first, nr - 16);
+        // Rotate the other way with less moves.
+        return dwordRRotate(dword, 32 - nr);
     }
 }
 
@@ -727,9 +726,8 @@ function dwordRRotate(dword, nr = 1) {
         return (dword >>> nr) | overflow;
     }
     else {
-        // We will have to  apply our trick twice.
-        let first = dwordRRotate(dword, 16);
-        return dwordRRotate(first, nr - 16);
+        // Rotate the other way with less moves.
+        return dwordLRotate(dword, 32 - nr);
     }
 }
 
