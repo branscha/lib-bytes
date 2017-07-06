@@ -5,9 +5,11 @@ const ERR040 = (len) => `Bytes/040: Array length should be a multiple of ${len}.
 const ERR050 = "Bytes/050: Number of shifts should be >= 0.";
 const ERR060 = (len) => `Bytes/060: Array length should be exactly ${len}.`;
 const ERR070 = "Bytes/070: The block length should be > 0.";
-const ERR080 = "Bytes/080: No bit padding found.";
-const ERR090 = "Bytes/090: Array length should be a multiple of the block length."
-const ERR100 = "Bytes/100: Expected an array of arrays."
+const ERR080 = "Bytes/080: Inconsistent padding.";
+const ERR090 = "Bytes/090: Array length should be a multiple of the block length.";
+const ERR100 = "Bytes/100: Expected an array of arrays.";
+const ERR110 = "Bytes/110: PKCS7 padding can be maximal 256 bytes long.";
+const ERR120 = "Bytes/120: PKCS5 padding can be maximal 8 bytes long.";
 
 // RAW STRING
 /////////////
@@ -733,9 +735,11 @@ function paddBitarrBits(bitarr, bitBlockLen, minBitPadLen = 0) {
     // Clone the array first.
     bitarr = bitarr.slice();
     let padLen = bitBlockLen - (bitarr.length % bitBlockLen);
-    while(padLen < minBitPadLen) padLen += bitBlockLen;
     // We ALWAYS add padding.
     if(padLen <= 0) padLen = bitBlockLen;
+    // Add more padding if the padding is smaller than the required size.
+    while(padLen < minBitPadLen) padLen += bitBlockLen;
+    // Append the padding.
     bitarr.push(1);
     padLen--;
     while (padLen > 0) {
@@ -754,16 +758,16 @@ function unpaddBitarrBits(bitarr){
     return bitarr.slice(0, i);
 }
 
-// Pad a byte aray with bit padding. Padding is done one byte boundaries here (not within a byte).
+// Pad a byte array with bit padding. Padding is done one byte boundaries here (not within a byte).
 function paddBarrBits(barr, byteBlockLen, minBytePadLen = 0) {
     if (!Array.isArray(barr)) throw Error(ERR020);
     if(byteBlockLen < 0) throw Error(ERR070);
-    let padLen = byteBlockLen - (barr.length * byteBlockLen);
+    let padLen = byteBlockLen - (barr.length % byteBlockLen);
+    // We ALWAYS add padding.
+    if(padLen <= 0) padLen = byteBlockLen;
     while(padLen < minBytePadLen) padLen += byteBlockLen;
     // Clone the array first.
     barr = barr.slice();
-    // We ALWAYS add padding.
-    if(padLen <= 0) padLen = byteBlockLen;
     barr.push(0b10000000);
     padLen--;
     while (padLen > 0) {
@@ -781,23 +785,45 @@ function unpaddBarrBits(barr) {
     return barr.slice(0, i);
 }
 
-
 function paddPkcs7(barr, blockByteLen) {
+    if (!Array.isArray(barr)) throw new Error(ERR020);
+    if (blockByteLen <= 0) throw new Error(ERR070);
+    if(blockByteLen > 256) throw new Error(ERR110);
+    let padLen = blockByteLen - (barr.length % blockByteLen);
+    // We ALWAYS add padding.
+    if(padLen <= 0) padLen = blockByteLen;
+    // Clone the array first.
+    barr = barr.slice();
+    for (let i = 0; i < padLen; i++) barr.push(padLen);
+    return barr;
 }
 
 function unpaddPkcs7(barr) {
+    if (!Array.isArray(barr)) throw new Error(ERR020);
+    let padLen = barr[barr.length -1];
+    if(padLen > 256) throw new Error(ERR110);
+    if(padLen > barr.length) throw new Error(ERR080);
+    // Verify the padding contents.
+    for(let i = barr.length - padLen; i < barr.length; i++) {
+        if(barr[i] !== padLen) throw new Error(ERR080);
+    }
+    return barr.slice(0, barr.length - padLen);
 }
 
 // Note
 // * Same as pkcs7 but 1-8 max.
 // * Just another name for 3DES standard.
-function paddPkcs5(barr, blockLen) {
+function paddPkcs5(barr, blockByteLen) {
+    if(blockByteLen > 8) throw new Error(ERR120);
+    return paddPkcs7(barr, blockByteLen);
 }
 
 function unpaddPkcs5(barr) {
+    return unpaddPkcs7(barr);
 }
 
-// Blocks
+// BLOCK FUNCTIONS
+//////////////////
 
 // Note: 
 // * Padding should have been done first.
@@ -868,4 +894,8 @@ export {
     dwarrLRotate as dwarrLRotate,
     barr2blocks as barr2blocks,
     blocks2barr as blocks2barr,
+    paddPkcs7 as paddPkcs7,
+    unpaddPkcs7 as unpaddPkcs7,
+    paddPkcs5 as paddPkcs5,
+    unpaddPkcs5 as unpaddPkscs5,
 }

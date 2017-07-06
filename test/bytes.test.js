@@ -41,6 +41,10 @@ import {
     dwarrLRotate as dwarrLRotate,
     barr2blocks as barr2blocks,
     blocks2barr as blocks2barr,
+    paddPkcs7 as paddPkcs7,
+    unpaddPkcs7 as unpaddPkcs7,
+    paddPkcs5 as paddPkcs5,
+    unpaddPkcs5 as unpaddPkscs5,
 } from 'bytes';
 
 test('rstr2barr', () => {
@@ -558,4 +562,18 @@ test('blocks2barr', ()=>{
     expect(blocks2barr([[1], [2], [1], [2],[1], [2],[1], [2],[1], [2],[1], [2],])).toEqual([1, 2, 1, 2, 1, 2, 1, 2, 1, 2, 1, 2]);
     expect(() => blocks2barr(null)).toThrow(/Bytes\/020/);
     expect(() => blocks2barr([[1, 2, 3], true, [7, 8, 9]])).toThrow(/Bytes\/100/);
+});
+
+test('paddPkcs7', () => {
+    expect(paddPkcs7([1, 2, 3], 5)).toEqual([1, 2, 3, 2, 2]);
+    expect(paddPkcs7([1, 2, 3], 8)).toEqual([1, 2, 3, 5, 5, 5, 5, 5]);
+    expect(() => paddPkcs7(null)).toThrow(/Bytes\/020/);
+    expect(() => paddPkcs7([1, 2], 500)).toThrow(/Bytes\/110/);
+});
+
+test('unpaddPkcs7', () => {
+    expect(unpaddPkcs7([1, 2, 3, 2, 2])).toEqual([1, 2, 3]);
+    expect(unpaddPkcs7([1, 2, 3, 5, 5, 5, 5, 5])).toEqual([1, 2, 3]);
+    expect(() => unpaddPkcs7(null)).toThrow(/Bytes\/020/);
+    expect(() => unpaddPkcs7([1, 2, 3, 2, 8])).toThrow(/Bytes\/080/);
 });
