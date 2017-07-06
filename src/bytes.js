@@ -695,7 +695,7 @@ function dwordLRotate(dword, nr = 1) {
     }
     else if(nr <= 16) {
         // Put a copy of the high order 16-bit word in a separate variable.
-        // Rotate both dword and the copy, the high order word of the copy will contain the bits we need.
+        // Shift both dword and the copy, the high order word of the copy will contain the bits that were shifted out.
         // Since the max bit storage in JavaScript is 32 bits we can only apply this trick with half of the bits.
         let overflow = ((dword >>> 16) & 0xffff) << nr;
         return (dword << nr) | (overflow >>> 16);
@@ -720,7 +720,7 @@ function dwordRRotate(dword, nr = 1) {
     }
     else if(nr <= 16) {
         // Put a copy of the low order 16-bit word in a separate variable.
-        // Rotate both dword and the copy, the high order word of the copy will contain the bits we need.
+        // Shift both dword and the copy, the low order word of the copy will contain the bits that were shifted out.
         // Since the max bit storage in JavaScript is 32 bits we can only apply this trick with half of the bits.
         let overflow = ((dword << 16) >> nr) & 0xffff;
         return (dword >>> nr) | overflow;
