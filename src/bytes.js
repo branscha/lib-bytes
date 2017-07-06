@@ -610,22 +610,11 @@ function byteLRotate(byte, nr = 1) {
     if(nr < 0 ){
         return byteRRotate(byte, -1 * nr);
     }
-    else if(nr === 0) {
-        return byte;
-    }
-    else if(nr === 1) {
-        // Fetch carry (highest bit).
-        let carry = (byte & 0b10000000)?1:0;
-        // Rotate and rotate the carry back in.
-        return (byte << 1) & 0xff | carry;
-    }
     else {
-        // Reduce nr rotations to have the same effect.
-        nr = nr % 8;
-        for(let i = 0; i < nr; i++) {
-            byte = byteLRotate(byte, 1);
-        }
-        return byte;
+        // Put two copies of the byte in a 16-bit word.
+        // The we shift left and the result is in the upper byte.
+        // So we use the redundant space top have a complete copy.
+        return ((((byte << 8 | byte) << (nr % 8)) >>> 8) & 0xff);
     }
 }
 
@@ -634,22 +623,11 @@ function byteRRotate(byte, nr = 1) {
     if(nr < 0 ){
         return byteLRotate(byte, -1 * nr);
     }
-    else if(nr === 0) {
-        return byte;
-    }
-    else if(nr === 1) {
-        // Fetch carry (lowest bit).
-        let carry = (byte & 0b1)?0b10000000:0;
-        // Rotate and rotate the carry back in.
-        return (byte >>> 1) &0xff | carry;
-    }
     else {
-        // Reduce nr rotations to have the same effect.
-        nr = nr % 8;
-        for(let i = 0; i < nr; i++) {
-            byte = byteRRotate(byte, 1);
-        }
-        return byte;
+        // Put two copies of the byte in a 16-bit word.
+        // The we shift right and the result is in the lower byte.
+        // So we use the redundant space top have a complete copy.
+        return (((byte << 8 | byte) >>> (nr % 8)) & 0xff);
     }
 }
 
@@ -658,22 +636,11 @@ function wordLRotate(word, nr = 1) {
     if(nr < 0 ){
         return wordRRotate(word, -1 * nr);
     }
-    else if(nr === 0) {
-        return word;
-    }
-    else if(nr === 1) {
-        // Fetch carry (highest bit).
-        let carry = (word & 0b1000000000000000)?1:0;
-        // Rotate and rotate the carry back in.
-        return (word << 1) & 0xffff | carry;
-    }
     else {
-        // Reduce nr rotations to have the same effect.
-        nr = nr % 16;
-        for(let i = 0; i < nr; i++) {
-            word = wordLRotate(word, 1);
-        }
-        return word;
+        // Put two copies of the word in a 32-bit dword.
+        // The we shift left and the result is in the upper word.
+        // So we use the redundant space top have a complete copy.
+        return ((((word << 16 | word) << (nr % 16)) >>> 16) & 0xffff);
     }
 }
 
@@ -682,22 +649,11 @@ function wordRRotate(word, nr = 1) {
     if(nr < 0 ){
         return wordLRotate(word, -1 * nr);
     }
-    else if(nr === 0) {
-        return word;
-    }
-    else if(nr === 1) {
-        // Fetch carry (lowest bit).
-        let carry = (word & 0b1)?0b1000000000000000:0;
-        // Rotate and rotate the carry back in.
-        return (word >>> 1) &0xffff | carry;
-    }
     else {
-        // Reduce nr rotations to have the same effect.
-        nr = nr % 16;
-        for(let i = 0; i < nr; i++) {
-            word = wordRRotate(word, 1);
-        }
-        return word;
+        // Put two copies of the word in a 32-bit dword.
+        // The we shift right and the result is in the lower word.
+        // So we use the redundant space top have a complete copy.
+        return (((word << 16 | word) >>> (nr % 16)) & 0xffff);
     }
 }
 

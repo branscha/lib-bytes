@@ -412,6 +412,7 @@ test('byteLRotate', () => {
     expect(byteLRotate(0b10000000, 6)).toBe(0b00100000);
     expect(byteLRotate(0b10000000, 7)).toBe(0b01000000);
     expect(byteLRotate(0b10000000, 8)).toBe(0b10000000);
+    expect(byteLRotate(0b10000000, 0)).toBe(0b10000000);
 });
 
 test('byteRRotate', () => {
@@ -423,6 +424,7 @@ test('byteRRotate', () => {
     expect(byteRRotate(0b10000000, 6)).toBe(0b00000010);
     expect(byteRRotate(0b10000000, 7)).toBe(0b00000001);
     expect(byteRRotate(0b10000000, 8)).toBe(0b10000000);
+    expect(byteRRotate(0b10000000, 0)).toBe(0b10000000);
 });
 
 test('bitarr2barrB', () => {
