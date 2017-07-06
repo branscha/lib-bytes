@@ -619,7 +619,7 @@ function byteLRotate(byte, nr = 1) {
     else {
         // Put two copies of the byte in a 16-bit word.
         // The we shift left and the result is in the upper byte.
-        // So we use the redundant space top have a complete copy.
+        // So we use the redundant space to have a complete copy.
         return ((((byte << 8 | byte) << (nr % 8)) >>> 8) & 0xff);
     }
 }
@@ -638,7 +638,7 @@ function byteRRotate(byte, nr = 1) {
     else {
         // Put two copies of the byte in a 16-bit word.
         // The we shift right and the result is in the lower byte.
-        // So we use the redundant space top have a complete copy.
+        // So we use the redundant space to have a complete copy.
         return (((byte << 8 | byte) >>> (nr % 8)) & 0xff);
     }
 }
@@ -657,7 +657,7 @@ function wordLRotate(word, nr = 1) {
     else {
         // Put two copies of the word in a 32-bit dword.
         // The we shift left and the result is in the upper word.
-        // So we use the redundant space top have a complete copy.
+        // So we use the redundant space to have a complete copy.
         return ((((word << 16 | word) << (nr % 16)) >>> 16) & 0xffff);
     }
 }
@@ -676,7 +676,7 @@ function wordRRotate(word, nr = 1) {
     else {
         // Put two copies of the word in a 32-bit dword.
         // The we shift right and the result is in the lower word.
-        // So we use the redundant space top have a complete copy.
+        // So we use the redundant space to have a complete copy.
         return (((word << 16 | word) >>> (nr % 16)) & 0xffff);
     }
 }
