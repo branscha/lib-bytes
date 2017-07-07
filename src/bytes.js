@@ -330,20 +330,25 @@ function isConsistentCarr(carr) {
 // DWORD ARRAY FUNCtIONS
 /////////////////////////
 
-// Bit operations on dwarrs.
-// Notes:
-// * dwarr is is considered to be big endian here.
-
 /**
- * Both operands must be arrays of the same length.
- * @param op1
- * @param op2
- * @returns {boolean}
+ * Verify if two 32-bit dword arrays (aka. dwarr) are compatible to act as operands in one of the bit operators.
+ * The test is NOT automatically called in the bit operators for reasons of efficiency.
+ * This is part of a group of functions that operate on the super-words (32-bit big endian dword arrays)  in a composite array (carr).
+ * @param {Array.<Number>} op1 - First operand.
+ * @param {Array<Number>} op2 - Second operand.
+ * @returns {boolean} - Indicates whether op1 and op2 are arrays of the same length.
  */
 function isCompatibleDwarrs(op1, op2) {
     return op1 !== null && op2 !== null && Array.isArray(op1) && Array.isArray(op2) && op1.length === op2.length;
 }
 
+/**
+ * Bitwise AND on two 32-bit dword arrays (aka. dwarr).
+ * This is part of a group of functions that operate on the super-words (32-bit big endian dword arrays)  in a composite array (carr).
+ * @param {Array.<Number>} op1 - First operand, a super-word dwarr.
+ * @param {Array<Number>} op2 - Second operand a super-word dwarr.
+ * @returns {Array.<Number>} - A super-word dwarr, the result of the bitwise operator.
+ */
 function dwarrAnd(op1, op2) {
     let dwarr = [];
     for (let i = 0; i < op1.length; i++) {
@@ -352,6 +357,13 @@ function dwarrAnd(op1, op2) {
     return dwarr;
 }
 
+/**
+ * Bitwise OR on two 32-bit dword arrays (aka. dwarr).
+ * This is part of a group of functions that operate on the super-words (32-bit big endian dword arrays)  in a composite array (carr).
+ * @param {Array.<Number>} op1 - First operand, a super-word dwarr.
+ * @param {Array<Number>} op2 - Second operand a super-word dwarr.
+ * @returns {Array.<Number>} - A super-word dwarr, the result of the bitwise operator.
+ */
 function dwarrOr(op1, op2) {
     let dwarr = [];
     for (let i = 0; i < op1.length; i++) {
@@ -360,6 +372,13 @@ function dwarrOr(op1, op2) {
     return dwarr;
 }
 
+/**
+ * Bitwise XOR on two 32-bit dword arrays (aka. dwarr).
+ * This is part of a group of functions that operate on the super-words (32-bit big endian dword arrays)  in a composite array (carr).
+ * @param {Array.<Number>} op1 - First operand, a super-word dwarr.
+ * @param {Array<Number>} op2 - Second operand a super-word dwarr.
+ * @returns {Array.<Number>} - A super-word dwarr, the result of the bitwise operator.
+ */
 function dwarrXor(op1, op2) {
     let dwarr = [];
     for (let i = 0; i < op1.length; i++) {
@@ -368,6 +387,12 @@ function dwarrXor(op1, op2) {
     return dwarr;
 }
 
+/**
+ * Bitwise NOT of a 32-bit dword array (aka. dwarr).
+ * This is part of a group of functions that operate on the super-words (32-bit big endian dword arrays)  in a composite array (carr).
+ * @param {Array.<Number>} op1 - Operand, a super-word dwarr.
+ * @returns {Array.<Number>} - A super-word dwarr, the result of the bitwise operator.
+ */
 function dwarrNot(op1) {
     let dwarr = [];
     for (let i = 0; i < op1.length; i++) {
@@ -377,10 +402,11 @@ function dwarrNot(op1) {
 }
 
 /**
- * Left shift of big endian dword arrays (it could be the contents of a carr).
- * @param op1
- * @param nr
- * @returns {*}
+ * Bitwise LEFT SHIFT of a 32-bit dword array (aka. dwarr).
+ * This is part of a group of functions that operate on the super-words (32-bit big endian dword arrays)  in a composite array (carr).
+ * @param {Array.<Number>} op1 - Operand, a super-word dwarr.
+ * @param {Number} nr - The number of shifts.
+ * @returns {Array.<Number>} - A super-word dwarr, the result of the bitwise operator.
  */
 function dwarrLShift(op1, nr = 1) {
     if (nr < 0) throw new Error(ERR050);
@@ -408,10 +434,11 @@ function dwarrLShift(op1, nr = 1) {
 }
 
 /**
- * Right shift with sign extension of a big endian dword array (it could be the contents of a carr).
- * @param op1
- * @param nr
- * @returns {*}
+ * Bitwise RIGHT SHIFT with sign extension of a 32-bit dword array (aka. dwarr).
+ * This is part of a group of functions that operate on the super-words (32-bit big endian dword arrays)  in a composite array (carr).
+ * @param {Array.<Number>} op1 - Operand, a super-word dwarr.
+ * @param {Number} nr - The number of shifts.
+ * @returns {Array.<Number>} - A super-word dwarr, the result of the bitwise operator.
  */
 function dwarrRSShift(op1, nr = 1) {
     if (nr < 0) throw new Error(ERR050);
@@ -441,10 +468,11 @@ function dwarrRSShift(op1, nr = 1) {
 }
 
 /**
- * Right shift with zero extension of a big endian dword array (it could be the contents of a carr).
- * @param op1
- * @param nr
- * @returns {*}
+ * Bitwise RIGHT SHIFT with zero extension of a 32-bit dword array (aka. dwarr).
+ * This is part of a group of functions that operate on the super-words (32-bit big endian dword arrays)  in a composite array (carr).
+ * @param {Array.<Number>} op1 - Operand, a super-word dwarr.
+ * @param {Number} nr - The number of shifts.
+ * @returns {Array.<Number>} - A super-word dwarr, the result of the bitwise operator.
  */
 function dwarrRZShift(op1, nr = 1) {
     if (nr < 0) throw new Error(ERR050);
@@ -471,6 +499,13 @@ function dwarrRZShift(op1, nr = 1) {
     }
 }
 
+/**
+ * Bitwise RIGHT ROTATE of a 32-bit dword array (aka. dwarr).
+ * This is part of a group of functions that operate on the super-words (32-bit big endian dword arrays)  in a composite array (carr).
+ * @param {Array.<Number>} dwarr - Operand, a super-word dwarr.
+ * @param {Number} nr - The number of shifts.
+ * @returns {Array.<Number>} - A super-word dwarr, the result of the bitwise operator.
+ */
 function dwarrRRotate(dwarr, nr = 1) {
     if(nr < 0) {
         return dwarrLRotate(dwarr, -1 * nr);
@@ -494,6 +529,13 @@ function dwarrRRotate(dwarr, nr = 1) {
     }
 }
 
+/**
+ * Bitwise LEFT ROTATE of a 32-bit dword array (aka. dwarr).
+ * This is part of a group of functions that operate on the super-words (32-bit big endian dword arrays)  in a composite array (carr).
+ * @param {Array.<Number>} dwarr - Operand, a super-word dwarr.
+ * @param {Number} nr - The number of shifts.
+ * @returns {Array.<Number>} - A super-word dwarr, the result of the bitwise operator.
+ */
 function dwarrLRotate(dwarr, nr = 1){
     if(nr < 0) {
         return dwarrRRotate(dwarr, -1 * nr);
