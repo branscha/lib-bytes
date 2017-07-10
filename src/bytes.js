@@ -8,7 +8,7 @@ const ERR070 = "Bytes/070: The block length should be > 0.";
 const ERR080 = "Bytes/080: Inconsistent padding.";
 const ERR090 = "Bytes/090: Array length should be a multiple of the block length.";
 const ERR100 = "Bytes/100: Expected an array of arrays.";
-const ERR110 = "Bytes/110: Padding length max. 256 exceeded.";
+const ERR110 = "Bytes/110: Padding length max. 255 exceeded.";
 const ERR120 = "Bytes/120: Padding length max. 8 exceeded.";
 
 // RAW STRING
@@ -901,7 +901,7 @@ export function unpaddBarrBits(barr) {
 }
 
 /**
- * Add PKCS7 padding to a byte array. Padding can be maximum 256 bytes long.
+ * Add PKCS7 padding to a byte array. Padding can be maximum 255 bytes long.
  * @param {Array.<Number>} barr - A byte array.
  * @param {Number} blockByteLen - The block length in bytes. The padded array length will be a multiple of the block length.
  * @returns {Array.<Number>} The padded byte array.
@@ -909,7 +909,7 @@ export function unpaddBarrBits(barr) {
 export function paddPkcs7(barr, blockByteLen) {
     if (!Array.isArray(barr)) throw new Error(ERR020);
     if (blockByteLen <= 0) throw new Error(ERR070);
-    if(blockByteLen > 256) throw new Error(ERR110);
+    if(blockByteLen > 255) throw new Error(ERR110);
     let padLen = blockByteLen - (barr.length % blockByteLen);
     // We ALWAYS add padding.
     if(padLen <= 0) padLen = blockByteLen;
@@ -927,7 +927,7 @@ export function paddPkcs7(barr, blockByteLen) {
 export function unpaddPkcs7(barr) {
     if (!Array.isArray(barr)) throw new Error(ERR020);
     let padLen = barr[barr.length -1];
-    if(padLen > 256) throw new Error(ERR110);
+    if(padLen > 255) throw new Error(ERR110);
     if(padLen > barr.length) throw new Error(ERR080);
     // Verify the padding contents.
     for(let i = barr.length - padLen; i < barr.length; i++) {
@@ -958,7 +958,7 @@ export function unpaddPkcs5(barr) {
 
 /**
  * Add zero padding where the last byte contains the padding length. Padding is ALWAYS added.
- * it follows spec. ANSI X.923. Padding can be max. 256 long.
+ * it follows spec. ANSI X.923. Padding can be max. 255 long.
  * @param {Array.<Number>} barr - Byte array.
  * @param {Number} blockByteLen - The block length in bytes. The padded array length will be a multiple of the block length.
  * @returns {Array.<Number>} - Padded byte array.
@@ -966,7 +966,7 @@ export function unpaddPkcs5(barr) {
 export function paddLenMarker(barr, blockByteLen) {
     if (!Array.isArray(barr)) throw new Error(ERR020);
     if (blockByteLen <= 0) throw new Error(ERR070);
-    if(blockByteLen > 256) throw new Error(ERR110);
+    if(blockByteLen > 255) throw new Error(ERR110);
     let padLen = blockByteLen - (barr.length % blockByteLen);
     // We ALWAYS add padding.
     if(padLen <= 0) padLen = blockByteLen;
@@ -985,7 +985,7 @@ export function paddLenMarker(barr, blockByteLen) {
 export function unpaddLenMarker(barr) {
     if (!Array.isArray(barr)) throw new Error(ERR020);
     let padLen = barr[barr.length -1];
-    if(padLen > 256) throw new Error(ERR110);
+    if(padLen > 255) throw new Error(ERR110);
     if(padLen > barr.length) throw new Error(ERR080);
     // Verify the padding contents.
     for(let i = barr.length - padLen; i < barr.length - 1; i++) {

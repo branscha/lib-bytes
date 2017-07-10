@@ -238,7 +238,7 @@ byte boundaries (not within a byte).
 
     function unpaddBarrBits(barr)
 
-Add PKCS7 padding to a byte array. Padding can be maximum 256 bytes long.
+Add PKCS7 padding to a byte array. Padding can be maximum 255 bytes long.
 
     function paddPkcs7(barr, blockByteLen)
 
@@ -255,7 +255,7 @@ Remove the PKCS5 padding from a byte array.
     function unpaddPkcs5(barr)
 
 Add zero padding where the last byte contains the padding length. Padding is ALWAYS added.
-it follows spec. ANSI X.923. Padding can be max. 256 long.
+it follows spec. ANSI X.923. Padding can be max. 255 long.
 
     function paddLenMarker(barr, blockByteLen)
 
