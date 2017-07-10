@@ -1,4 +1,4 @@
-# Bytes
+# Bytes [![Build Status](https://travis-ci.org/branscha/lib-bytes.svg?branch=master)](https://travis-ci.org/branscha/lib-bytes)
 ## Goal
 
 Provide a number of byte block/stream manipulation functions to ease the handling of data streams.
