@@ -1,7 +1,7 @@
 {
   "name": "@branscha/bytes",
   "version": "1.0.1",
-  "description": "Byte block handling.",
+  "description": "Byte handling.",
   "main": "dist/bytes.js",
   "scripts": {
     "test": "gulp jest",
