@@ -9,11 +9,68 @@ It concerns these concepts:
 * "Word array (warr)" each word is 2 bytes.
 * "DWord array (dwarr)" each double word is 4 bytes.
 * "Composite array (carr)" Everything larger than double word is a carr, it cannot be represented directly in JavaScript and we have to create our own data structure for it. An array of arrays where each subarray is a dwarr and represents a larger big endian unit. We can choose the endianness of the dwarr subarray ourselves because it is an internal convention it does not affect the external representation.
+* "Bit array (bitarr)" A bit array.
+
+
+## Raw String Functions
+
+Raw string (each character represents a single byte)  to byte array with values 0-255.
+The high order byte of the character (which is 16 bits) is ignored.
+ 
+    function rstr2barr(rstr)
+
+
+Byte array to raw string (each character represents a single byte).
+Only the low order byte of the character is taken into account the higher order bytes are ignored.
+
+    function barr2rstr(barr)
+    
+## 16-bit Word Array Functions
+
+Convert a byte array into a 16-bit word array. The bytes are organized in little endian order.
+Each pair of bytes is converted into a 16-bit word, the first byte is the low order byte, the second byte is the high order byte.
+
+    function barr2warrL(barr)
+
+Convert a byte array into a 16-bit word array. The bytes are organized in big endian order.
+Each pair of bytes is converted into a 16-bit word, the first byte is the high order byte, the second byte is the low order byte.
+
+    function barr2warrB(barr) 
+
+Convert a 16-bit word array into a byte array. The bytes are organized in little endian order.
+Each 16-bit word is converted into a pair of bytes, the first byte is the low order byte, the second byte is the high order byte.
+
+    function warr2barrL(warr)
+
+
+Convert a 16-bit word array into a byte array. The bytes are organized in big endian order.
+Each 16-bit word is converted into a pair of bytes, the first byte is the high order byte, the second byte is the low order byte.
+
+    function warr2barrB(warr)
+    
+    
+## 32-bit Dword Array Functions
+
+Convert a byte array into a 32-bit word (aka. dword) array. The bytes are organized in little endian order.
+Each quadruple of bytes is converted into a 32-bit word, the first byte is the low order byte.
+
+    function barr2dwarrL(barr)
 
 
 
+Convert a byte array into a 32-bit word (aka. dword) array. The bytes are organized in big endian order.
+Each quadruple of bytes is converted into a 32-bit word, the first byte is the high order byte.
 
-* Everything larger than double word is a carr, it cannot be represented directly in JavaScript and we have to create our own data structure for it.
+    function barr2dwarrB(barr)
 
-// Carr construction.
-// Unlimited byte precision above 32 bits JavaScript limit.
+
+Convert a 32-bit word (aka. dword) array into a byte array. The bytes are organized in little endian order.
+Each 32-bit word is converted into a quadruple of bytes, the first byte is the low order byte.
+
+    function dwarr2barrL(dwarr)
+
+
+Convert a 32-bit word (aka. dword) array into a byte array. The bytes are organized in big endian order.
+Each 32-bit word is converted into a quadruple of bytes, the first byte is the low order byte.
+
+    function dwarr2barrB(dwarr)
