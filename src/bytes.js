@@ -15,7 +15,7 @@ const ERR120 = "Bytes/120: Padding length max. 8 exceeded.";
 /////////////
 
 /**
- * Raw string (each character represents a singel byte)  to byte array with values 0-255.
+ * Raw string (each character represents a single byte)  to byte array with values 0-255.
  * The high order byte of the character (which is 16 bits) is ignored.
  * @param {String} rstr - A raw string.
  * @returns {Array.<number>} - A byte array.
@@ -146,7 +146,7 @@ export function barr2dwarrL(barr) {
     if (barr.length % 4) throw new Error(ERR040(4));
     let warr = [];
     for (let i = 0; i < barr.length; i += 4) {
-        let byte1 = barr[i + 0] & 0xff;
+        let byte1 = barr[i] & 0xff;
         let byte2 = barr[i + 1] & 0xff;
         let byte3 = barr[i + 2] & 0xff;
         let byte4 = barr[i + 3] & 0xff;
@@ -168,7 +168,7 @@ export function barr2dwarrB(barr) {
     if (barr.length % 4) throw new Error(ERR040(4));
     let warr = [];
     for (let i = 0; i < barr.length; i += 4) {
-        let byte1 = barr[i + 0] & 0xff;
+        let byte1 = barr[i] & 0xff;
         let byte2 = barr[i + 1] & 0xff;
         let byte3 = barr[i + 2] & 0xff;
         let byte4 = barr[i + 3] & 0xff;
@@ -228,6 +228,7 @@ export function dwarr2barrB(dwarr) {
  * A composite can hold unlimited number of bytes, it is not restricted to the 32-bit JavaScript boundary.
  * A composite is represented by a big endian 32-bit dword array.
  * @param {Array.<Number>} barr - Byte array.
+ * @param {Number} carrByteSize - The length of a composite in bytes, should be a multiple of 4.
  * @returns {Array.<Number>} - Composite array.
  * @public
  */
@@ -250,6 +251,7 @@ export function barr2carrL(barr, carrByteSize) {
  * A composite can hold unlimited number of bytes, it is not restricted to the 32-bit JavaScript boundary.
  * A composite is represented by a big endian 32-bit dword array.
  * @param {Array.<Number>} barr - Byte array.
+ * @param {Number} carrByteSize - The length of a composite in bytes, should be a multiple of 4.
  * @returns {Array.<Number>} - Composite array.
  * @public
  */
@@ -418,9 +420,9 @@ export function dwarrLShift(op1, nr = 1) {
         let carry = 0b0;
         for (let i = 0; i < op1.length; i++) {
             let dword = op1[op1.length - 1 - i];
-            let hibit = (dword & 0x80000000) ? 1 : 0;
+            let hiBit = (dword & 0x80000000) ? 1 : 0;
             dwarr.unshift((dword << 1) | carry);
-            carry = hibit;
+            carry = hiBit;
         }
         return dwarr;
     }
@@ -808,12 +810,14 @@ export function dwordRRotate(dword, nr = 1) {
 // PADDING
 //////////
 
-// Returns a padded copy of the array.
-// Padding is ALWAYS added to prevent ambiguities.
-// If a block does not need padding, a full block of padding is added.
-//
-// RFC1321 step 3.1
-// ISO/IEC 797-1 Padding Method 2
+/**
+ * Apply bit padding to an array of bits. Padding is ALWAYS added. It returns a padded array.
+ * It follows standards RFC1321 step 3.1 and ISO/IEC 797-1 Padding Method 2.
+ * @param {Array.<Number>} bitarr - A bit array.
+ * @param {Number} bitBlockLen - The block length in nr of bits. Padding is added so that the total length is a multiple of the bit block length.
+ * @param {Number} minBitPadLen - Minimum padding size, sometimes one wants to add information in the padding region, this ensures there is enough room.
+ * @returns {Array.<Number>} - A padded bit array.
+ */
 export function paddBitarrBits(bitarr, bitBlockLen, minBitPadLen = 0) {
     if (!Array.isArray(bitarr)) throw Error(ERR020);
     if(bitBlockLen <= 0) throw Error(ERR070);
@@ -834,7 +838,11 @@ export function paddBitarrBits(bitarr, bitBlockLen, minBitPadLen = 0) {
     return bitarr;
 }
 
-// It is assumed that padding is ALWAYS there, otherwise padding/unpadding would be ambiguous.
+/**
+ * Remove the bit padding from an array of bits. It is assumed that padding is present.
+ * @param {Array.<Number>} bitarr - A padded bit array.
+ * @returns {Array.<Number>} - A bit array with the padding removed.
+ */
 export function unpaddBitarrBits(bitarr){
     if (!Array.isArray(bitarr)) throw Error(ERR020);
     let i = bitarr.length - 1;
@@ -843,8 +851,14 @@ export function unpaddBitarrBits(bitarr){
     return bitarr.slice(0, i);
 }
 
-// Pad a byte array with bit padding. Padding is done one byte boundaries here (not within a byte).
-// ISO/IEC 7816-4
+/**
+ * Add bit padding to a byte array. Padding is done on byte boundaries (not within a byte).
+ * Padding is ALWAYS added, it follows spec. ISO/IEC 7816-4.
+ * @param {Array.<Number>} barr - A byte array.
+ * @param {Number} byteBlockLen - The block length in bytes. The padded array length will be a multiple of the block length.
+ * @param {Number} minBytePadLen - The minimum padding size, in case one wants to add extra information in the padding region.
+ * @returns {Array.<Number>} The padded byte array.
+ */
 export function paddBarrBits(barr, byteBlockLen, minBytePadLen = 0) {
     if (!Array.isArray(barr)) throw Error(ERR020);
     if(byteBlockLen < 0) throw Error(ERR070);
@@ -862,7 +876,12 @@ export function paddBarrBits(barr, byteBlockLen, minBytePadLen = 0) {
     }
 }
 
-// It is assumed that padding is ALWAYS there, otherwise padding/unpadding would be ambiguous.
+/**
+ * Remove bit padding from a byte array. It is assumed that padding is ALWAYS present and that padding was done on
+ * byte boundaries (not within a byte).
+ * @param {Array.<Number>} barr - A byte array with padding.
+ * @returns {Array.<Number>} - Byte array without padding.
+ */
 export function unpaddBarrBits(barr) {
     if (!Array.isArray(barr)) throw Error(ERR020);
     let i = barr.length - 1;
@@ -871,6 +890,12 @@ export function unpaddBarrBits(barr) {
     return barr.slice(0, i);
 }
 
+/**
+ * Add PKCS7 padding to a byte array. Padding can be maximum 256 bytes long.
+ * @param {Array.<Number>} barr - A byte array.
+ * @param {Number} blockByteLen - The block length in bytes. The padded array length will be a multiple of the block length.
+ * @returns {Array.<Number>} The padded byte array.
+ */
 export function paddPkcs7(barr, blockByteLen) {
     if (!Array.isArray(barr)) throw new Error(ERR020);
     if (blockByteLen <= 0) throw new Error(ERR070);
@@ -884,6 +909,11 @@ export function paddPkcs7(barr, blockByteLen) {
     return barr;
 }
 
+/**
+ * Remove the PKCS7 padding from a byte array.
+ * @param {Array.<Number>} barr - A byte array.
+ * @returns {Array.<Number>} - The byte array stripped from its padding.
+ */
 export function unpaddPkcs7(barr) {
     if (!Array.isArray(barr)) throw new Error(ERR020);
     let padLen = barr[barr.length -1];
@@ -896,20 +926,33 @@ export function unpaddPkcs7(barr) {
     return barr.slice(0, barr.length - padLen);
 }
 
-// Note
-// * Same as pkcs7 but 1-8 max.
-// * Just another name for 3DES standard.
+/**
+ * Add PKCS5 padding to a byte array. Padding is exactly the same as PKCS7, but it can be maximum 8 bytes long.
+ * @param {Array.<Number>} barr - A byte array.
+ * @param {Number} blockByteLen - The block length in bytes. The padded array length will be a multiple of the block length.
+ * @returns {Array.<Number>} The padded byte array.
+ */
 export function paddPkcs5(barr, blockByteLen) {
     if(blockByteLen > 8) throw new Error(ERR120);
     return paddPkcs7(barr, blockByteLen);
 }
 
+/**
+ * Remove the PKCS5 padding from a byte array.
+ * @param {Array.<Number>} barr - A byte array.
+ * @returns {Array.<Number>} - The byte array stripped from its padding.
+ */
 export function unpaddPkcs5(barr) {
     return unpaddPkcs7(barr);
 }
 
-// Append zeroes, last byte is padding length.
-// ANSI X.923
+/**
+ * Add zero padding where the last byte contains the padding length. Padding is ALWAYS added.
+ * it follows spec. ANSI X.923. Padding can be max. 256 long.
+ * @param {Array.<Number>} barr - Byte array.
+ * @param {Number} blockByteLen - The block length in bytes. The padded array length will be a multiple of the block length.
+ * @returns {Array.<Number>} - Padded byte array.
+ */
 export function paddLenMarker(barr, blockByteLen) {
     if (!Array.isArray(barr)) throw new Error(ERR020);
     if (blockByteLen <= 0) throw new Error(ERR070);
@@ -924,6 +967,11 @@ export function paddLenMarker(barr, blockByteLen) {
     return barr;
 }
 
+/**
+ * Remove the zero padding with its length byte.
+ * @param {Array.<Number>} barr - Byte array with zero/length padding.
+ * @returns {Array.<Number>} - Byte array where padding is stripped.
+ */
 export function unpaddLenMarker(barr) {
     if (!Array.isArray(barr)) throw new Error(ERR020);
     let padLen = barr[barr.length -1];
@@ -936,8 +984,14 @@ export function unpaddLenMarker(barr) {
     return barr.slice(0, barr.length - padLen);
 }
 
-// Often used but padding/unpadding can lead to information loss ...
-// Not reversible ... might loose information ...
+/**
+ * Add zero padding to a byte array. It can lead to information loss when unpadding because trailing zeroes already
+ * present are hidden by the padding, the information of the starting point of the padding is not remembered.
+ * Not guaranteed to be reversible.
+ * @param {Array.<Number>} barr - Byte array.
+ * @param {Number} blockByteLen - The block length in nr of bytes. The padded block length will be a multiple of the block length.
+ * @returns {Array.<Number>} - Padded array.
+ */
 export function paddZeroes(barr, blockByteLen) {
     if (!Array.isArray(barr)) throw new Error(ERR020);
     if (blockByteLen <= 0) throw new Error(ERR070);
@@ -950,6 +1004,11 @@ export function paddZeroes(barr, blockByteLen) {
     return barr;
 }
 
+/**
+ * Remove the trailing zeroes from a byte array. It is assumed padding is present.
+ * @param {Array.<Number>} barr - A byte array.
+ * @returns {Array.<Number>} - Array with trailing zeroes removed.
+ */
 export function unpaddZeroes(barr) {
     if (!Array.isArray(barr)) throw new Error(ERR020);
     // Count nr of zeroes at the end.
@@ -961,9 +1020,13 @@ export function unpaddZeroes(barr) {
 // BLOCK FUNCTIONS
 //////////////////
 
-// Note: 
-// * Padding should have been done first.
-// * Error if barr not a multiple of blocklen.
+/**
+ * Split a byte array in blocks of specified length. Obviously the byte array should have a length that is a
+ * multiple of the block length, which can be achieved by adding some kind of padding.
+ * @param {Array.<Number>} barr - Byte array with length a multiple of the block length.
+ * @param {Number} byteBlockLen - Byte block length.
+ * @returns {Array.<Array.<Number>>} - An array of blocks, each block is byteBlockLeng long.
+ */
 export function barr2blocks(barr, byteBlockLen) {
     if (!Array.isArray(barr)) throw new Error(ERR020);
     if (byteBlockLen <= 0) throw new Error(ERR070);
@@ -976,6 +1039,11 @@ export function barr2blocks(barr, byteBlockLen) {
     return blocks;
 }
 
+/**
+ * Convert a block array to a byte array by flattening the block structure.
+ * @param {Array.<Array.<Number>>} blocks - An array of blocks of bytes.
+ * @returns {Array.<Number>} - Flattened array.
+ */
 export function blocks2barr(blocks) {
     if(!Array.isArray(blocks)) throw new Error(ERR020);
     let barr = [];
@@ -985,4 +1053,3 @@ export function blocks2barr(blocks) {
     }
     return barr;
 }
-
