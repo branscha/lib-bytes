@@ -658,6 +658,11 @@ export function barr2bitarrL(barr) {
     return bitarr;
 }
 
+/**
+ * Convert a bit array to a byte array, the bits are organized big endian order, the most important bits come first.
+ * @param {Array.<Number>} bitarr - A bit array.
+ * @returns {Array.<Number>}  A byte array.
+ */
 export function bitarr2barrB(bitarr) {
     if(!Array.isArray(bitarr)) throw new Error(ERR020);
     let barr = [];
@@ -668,6 +673,11 @@ export function bitarr2barrB(bitarr) {
     return barr;
 }
 
+/**
+ * Convert a bit array to a byte array, the bits are organized little endian order, the least important bits come first.
+ * @param {Array.<Number>} bitarr - A bit array.
+ * @returns {Array.<Number>}  A byte array.
+ */
 export function bitarr2barrL(bitarr) {
     if(!Array.isArray(bitarr)) throw new Error(ERR020);
     let barr = [];

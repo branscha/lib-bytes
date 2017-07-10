@@ -3,7 +3,7 @@
 
 Provide a number of byte block/stream manipulation functions to ease the handling of data streams.
 
-It concerns these concepts:
+It uses these concepts:
 * "Raw string (rstr)" where each character represents a single byte. Technically a JavaScript character is 16 bits, but in this case we will only use the lower 8 bits. This representation is most often used for transport, to get the data in/out of the application. 
 * "Byte array (barr)" where each byte is represented by a single unsigned numeric value 0-255 in an array. This representation is suited for byte manipulation algorithms.
 * "Word array (warr)" each word is 2 bytes.
@@ -18,7 +18,6 @@ Raw string (each character represents a single byte)  to byte array with values 
 The high order byte of the character (which is 16 bits) is ignored.
  
     function rstr2barr(rstr)
-
 
 Byte array to raw string (each character represents a single byte).
 Only the low order byte of the character is taken into account the higher order bytes are ignored.
@@ -42,12 +41,10 @@ Each 16-bit word is converted into a pair of bytes, the first byte is the low or
 
     function warr2barrL(warr)
 
-
 Convert a 16-bit word array into a byte array. The bytes are organized in big endian order.
 Each 16-bit word is converted into a pair of bytes, the first byte is the high order byte, the second byte is the low order byte.
 
     function warr2barrB(warr)
-    
     
 ## 32-bit Dword Array Functions
 
@@ -56,19 +53,15 @@ Each quadruple of bytes is converted into a 32-bit word, the first byte is the l
 
     function barr2dwarrL(barr)
 
-
-
 Convert a byte array into a 32-bit word (aka. dword) array. The bytes are organized in big endian order.
 Each quadruple of bytes is converted into a 32-bit word, the first byte is the high order byte.
 
     function barr2dwarrB(barr)
-
-
+    
 Convert a 32-bit word (aka. dword) array into a byte array. The bytes are organized in little endian order.
 Each 32-bit word is converted into a quadruple of bytes, the first byte is the low order byte.
 
     function dwarr2barrL(dwarr)
-
 
 Convert a 32-bit word (aka. dword) array into a byte array. The bytes are organized in big endian order.
 Each 32-bit word is converted into a quadruple of bytes, the first byte is the low order byte.
@@ -93,7 +86,6 @@ A composite is represented by a big endian 32-bit dword array.
   
       function barr2carrB(barr, carrByteSize)
 
-
 Convert a composite array into a byte array. The bytes are organized in little endian order.
 A composite can hold unlimited number of bytes, it is not restricted to the 32-bit JavaScript boundary.
 A composite is represented by a big endian 32-bit dword array.
@@ -106,38 +98,32 @@ A composite is represented by a big endian 32-bit dword array.
 
     function carr2barrB(carr)
 
-
 A composite array (carr) represents an array of super-words of the same size.
 A super-word is represented by a big endian 32-bit dword array (dwarr).
 This function test if a data structure can pass as a valid composite array.
 
     function isConsistentCarr(carr)
-    
-    
+        
 Verify if two 32-bit dword arrays (aka. dwarr) are compatible to act as operands in one of the bit operators.
 The test is NOT automatically called in the bit operators for reasons of efficiency.
 This is part of a group of functions that operate on the super-words (32-bit big endian dword arrays)  in a composite array (carr).
 
     function isCompatibleDwarrs(op1, op2) 
 
-
 Bitwise AND on two 32-bit dword arrays (aka. dwarr).
 This is part of a group of functions that operate on the super-words (32-bit big endian dword arrays)  in a composite array (carr).
 
     function dwarrAnd(op1, op2) 
-
 
 Bitwise OR on two 32-bit dword arrays (aka. dwarr).
 This is part of a group of functions that operate on the super-words (32-bit big endian dword arrays)  in a composite array (carr).
 
     function dwarrOr(op1, op2) 
 
-
 Bitwise XOR on two 32-bit dword arrays (aka. dwarr).
 This is part of a group of functions that operate on the super-words (32-bit big endian dword arrays)  in a composite array (carr).
 
     function dwarrXor(op1, op2) 
-
 
 Bitwise NOT of a 32-bit dword array (aka. dwarr).
 This is part of a group of functions that operate on the super-words (32-bit big endian dword arrays)  in a composite array (carr).
@@ -149,24 +135,20 @@ This is part of a group of functions that operate on the super-words (32-bit big
 
     function dwarrLShift(op1, nr = 1) 
 
-
 Bitwise RIGHT SHIFT with sign extension of a 32-bit dword array (aka. dwarr).
 This is part of a group of functions that operate on the super-words (32-bit big endian dword arrays)  in a composite array (carr).
 
     function dwarrRSShift(op1, nr = 1) 
-
 
 Bitwise RIGHT SHIFT with zero extension of a 32-bit dword array (aka. dwarr).
 This is part of a group of functions that operate on the super-words (32-bit big endian dword arrays)  in a composite array (carr).
 
     function dwarrRZShift(op1, nr = 1) 
 
-
 Bitwise RIGHT ROTATE of a 32-bit dword array (aka. dwarr).
 This is part of a group of functions that operate on the super-words (32-bit big endian dword arrays)  in a composite array (carr).
 
     function dwarrRRotate(dwarr, nr = 1) 
-
 
 Bitwise LEFT ROTATE of a 32-bit dword array (aka. dwarr).
 This is part of a group of functions that operate on the super-words (32-bit big endian dword arrays)  in a composite array (carr).
@@ -175,7 +157,39 @@ This is part of a group of functions that operate on the super-words (32-bit big
 
 ## Bit Array
 
-TODO
+ Convert a byte to a bit array, where the bits are big endian, the most important bit first.
+ 
+        function byte2bitarrB(byte)
+
+ Convert a byte to a bit array, where the bits are little endian, the least important bit first.
+
+        function byte2bitarrL(byte)
+
+ Convert a bit array of exactly 8 bits into a byte. The bits in the array  are organized in a big endian way.
+
+        function bitarr2byteB(bitarr)
+
+ Convert a bit array of exactly 8 bits into a byte. The bits in the array  are organized in a little endian way.
+
+        function bitarr2byteL(bitarr)
+
+ Convert a byte array into a bit array. The bits are organized in big endian order where the most important bit
+ comes first in the list.
+
+        function barr2bitarrB(barr) 
+
+ Convert a byte array into a bit array. The bits are organized in little endian order where the least important bit
+ comes first in the list.
+
+        function barr2bitarrL(barr) 
+
+ Convert a bit array to a byte array, the bits are organized big endian order, the most important bits come first.
+
+        function bitarr2barrB(bitarr) 
+
+ Convert a bit array to a byte array, the bits are organized little endian order, the least important bits come first.
+
+        function bitarr2barrL(bitarr) 
 
 ## Rotation of byte/word/dword
 
@@ -183,21 +197,17 @@ Rotate the bits of a byte to the left, the high order bit will re-appear as the 
 
     function byteLRotate(byte, nr = 1)
 
-
 Rotate the bits of a byte to the right, the low order bit will re-appear as the high order bit.
 
     function byteRRotate(byte, nr = 1)
-
 
 Rotate the bits of a 16-bit word to the left, the high order bit will re-appear as the low order bit.
 
     function wordLRotate(word, nr = 1)
 
-
 Rotate the bits of a 16-bit word to the right, the low order bit will re-appear as the high order bit.
 
     function wordRRotate(word, nr = 1)
-
 
 Rotate the bits of a 32-bit dword to the left, the high order bit will re-appear as the low order bit.
 
@@ -206,15 +216,13 @@ Rotate the bits of a 32-bit dword to the left, the high order bit will re-appear
 Rotate the bits of a 32-bit dword to the right, the low order bit will re-appear as the high order bit.
 
     function dwordRRotate(dword, nr = 1)
-    
-    
+        
 ### Padding Functions
 
 Apply bit padding to an array of bits. Padding is ALWAYS added. It returns a padded array.
 It follows standards RFC1321 step 3.1 and ISO/IEC 797-1 Padding Method 2.
 
     function paddBitarrBits(bitarr, bitBlockLen, minBitPadLen = 0) 
-
 
 Remove the bit padding from an array of bits. It is assumed that padding is present.
 
@@ -224,7 +232,6 @@ Add bit padding to a byte array. Padding is done on byte boundaries (not within 
 Padding is ALWAYS added, it follows spec. ISO/IEC 7816-4.
 
     function paddBarrBits(barr, byteBlockLen, minBytePadLen = 0)
-
 
 Remove bit padding from a byte array. It is assumed that padding is ALWAYS present and that padding was done on
 byte boundaries (not within a byte).
@@ -246,7 +253,6 @@ Add PKCS5 padding to a byte array. Padding is exactly the same as PKCS7, but it 
 Remove the PKCS5 padding from a byte array.
 
     function unpaddPkcs5(barr)
-
 
 Add zero padding where the last byte contains the padding length. Padding is ALWAYS added.
 it follows spec. ANSI X.923. Padding can be max. 256 long.
