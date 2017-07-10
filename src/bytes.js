@@ -327,7 +327,7 @@ export function isConsistentCarr(carr) {
     return true;
 }
 
-// DWORD ARRAY FUNCtIONS
+// DWORD ARRAY FUNCTIONS
 /////////////////////////
 
 /**
@@ -562,6 +562,11 @@ export function dwarrLRotate(dwarr, nr = 1){
 // BIT ARRAY
 ////////////
 
+/**
+ * Convert a byte to a bit array, where the bits are big endian, the most important bit first.
+ * @param {Number} byte - The byte to decompose.
+ * @returns {Array.<Number>} - An array of bits.
+ */
 export function byte2bitarrB(byte) {
     if(typeof(byte) !== 'number') throw new Error(ERR030);
     let bitarr = [];
@@ -573,6 +578,11 @@ export function byte2bitarrB(byte) {
     return bitarr;
 }
 
+/**
+ * Convert a byte to a bit array, where the bits are little endian, the least important bit first.
+ * @param {Number} byte - The byte to decompose.
+ * @returns {Array.<Number>} - An array of bits.
+ */
 export function byte2bitarrL(byte) {
     if(typeof(byte) !== 'number') throw new Error(ERR030);
     let bitarr = [];
@@ -584,6 +594,11 @@ export function byte2bitarrL(byte) {
     return bitarr;
 }
 
+/**
+ * Convert a bit array of exactly 8 bits into a byte. The bits in the array  are organized in a big endian way.
+ * @param {Array.<Number>} bitarr - The array of bits.
+ * @returns {number} - Byte.
+ */
 export function bitarr2byteB(bitarr){
     if(!Array.isArray(bitarr)) throw new Error(ERR020);
     if(bitarr.length !== 8) throw new Error(ERR060(8));
@@ -595,6 +610,11 @@ export function bitarr2byteB(bitarr){
     return byte;
 }
 
+/**
+ * Convert a bit array of exactly 8 bits into a byte. The bits in the array  are organized in a little endian way.
+ * @param {Array.<Number>} bitarr - The array of bits.
+ * @returns {number} - Byte.
+ */
 export function bitarr2byteL(bitarr){
     if(!Array.isArray(bitarr)) throw new Error(ERR020);
     if(bitarr.length !== 8) throw new Error(ERR060(8));
@@ -606,6 +626,12 @@ export function bitarr2byteL(bitarr){
     return byte;
 }
 
+/**
+ * Convert a byte array into a bit array. The bits are organized in big endian order where the most important bit
+ * comes first in the list.
+ * @param {Array.<Number>} barr - A byte array.
+ * @returns {Array.<Number>} A bit array.
+ */
 export function barr2bitarrB(barr) {
     if(!Array.isArray(barr)) throw new Error(ERR020);
     let bitarr = [];
@@ -615,6 +641,12 @@ export function barr2bitarrB(barr) {
     return bitarr;
 }
 
+/**
+ * Convert a byte array into a bit array. The bits are organized in little endian order where the least important bit
+ * comes first in the list.
+ * @param {Array.<Number>} barr - A byte array.
+ * @returns {Array.<Number>} A bit array.
+ */
 export function barr2bitarrL(barr) {
     if(!Array.isArray(barr)) throw new Error(ERR020);
     let bitarr = [];
